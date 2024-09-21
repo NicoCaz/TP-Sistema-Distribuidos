@@ -1,35 +1,35 @@
 body {
     font-family: Arial, sans-serif;
-    line-height: 1.6;
     margin: 0;
     padding: 0;
 }
 
 nav {
     background-color: #333;
-    color: #fff;
-    padding: 1rem;
+    padding: 1em;
 }
 
-.nav-link {
-    color: #fff;
-    text-decoration: none;
-    margin-right: 1rem;
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+    margin: 0;
+    padding: 0;
 }
 
-main {
-    padding: 2rem;
+nav ul li {
+    display: inline;
 }
 
-button {
-    background-color: #4CAF50;
-    border: none;
+nav ul li a {
     color: white;
-    padding: 15px 32px;
-    text-align: center;
     text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+#content {
+    padding: 20px;
 }
