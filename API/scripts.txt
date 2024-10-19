@@ -1,0 +1,5 @@
+Crear una vaca:  curl -X POST http://localhost:3000/vacas -H "Content-Type: application/json" -d "{\"nombre\": \"Vaca1\", \"tag\": \"123\"}"
+
+traer todas las vacas: curl http://localhost:3000/vacas
+
+eliminar una vaca: curl -X DELETE http://localhost:3000/vacas/123
