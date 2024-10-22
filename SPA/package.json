@@ -1,18 +1,19 @@
 {
   "name": "tu-proyecto",
   "version": "1.0.0",
-  "description": "",
+  "description": "A vanilla js solution to routing for a single-page application.\r Watch the [corresponding YouTube video](https://youtu.be/ZleShIpv5zQ).",
   "main": "index.js",
   "scripts": {
     "start": "concurrently \"npm:server\" \"npm:livereload\"",
     "server": "nodemon --watch ./ --ext html,css,js --exec \"http-server ./ -p 8080\"",
     "livereload": "livereload ./ --exts html,css,js"
   },
-  "dependencies": {},
   "devDependencies": {
     "concurrently": "^9.0.1",
     "http-server": "^14.0.0",
     "livereload": "^0.9.3",
     "nodemon": "^2.0.15"
-  }
+  },
+  "author": "",
+  "license": "ISC"
 }
