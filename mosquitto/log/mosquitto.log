@@ -1,0 +1,24 @@
+1729590365: mosquitto version 2.0.19 starting
+1729590365: Config loaded from /mosquitto/config/mosquitto.conf.
+1729590365: Opening ipv4 listen socket on port 1883.
+1729590365: Opening ipv6 listen socket on port 1883.
+1729590365: mosquitto version 2.0.19 running
+1729590455: mosquitto version 2.0.19 terminating
+1729590455: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1729590490: mosquitto version 2.0.19 starting
+1729590490: Config loaded from /mosquitto/config/mosquitto.conf.
+1729590490: Opening ipv4 listen socket on port 1884.
+1729590490: Opening ipv6 listen socket on port 1884.
+1729590490: mosquitto version 2.0.19 running
+1729590503: New connection from 172.19.0.1:51044 on port 1884.
+1729590503: Client <unknown> disconnected due to protocol error.
+1729590503: New connection from 172.19.0.1:51054 on port 1884.
+1729590506: Client <unknown> closed its connection.
+1729590524: New connection from 172.19.0.1:56190 on port 1884.
+1729590524: Client <unknown> disconnected due to protocol error.
+1729590524: New connection from 172.19.0.1:56196 on port 1884.
+1729590524: New connection from 172.19.0.1:56200 on port 1884.
+1729590526: Client <unknown> closed its connection.
+1729590526: Client <unknown> closed its connection.
+1729590811: mosquitto version 2.0.19 terminating
+1729590811: Saving in-memory database to /mosquitto/data//mosquitto.db.
