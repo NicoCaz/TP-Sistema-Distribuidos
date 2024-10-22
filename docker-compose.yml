@@ -15,7 +15,6 @@ services:
       context: .
       dockerfile: Dockerfile.spa  # Este es para tu SPA
     command: npm run start
-
     ports:
       - "8080:8080"
 
@@ -23,7 +22,7 @@ services:
     image: eclipse-mosquitto:latest
     container_name: mosquitto
     ports:
-      - "1884:1884"  # Puerto estándar de Mosquitto MQTT
+      - "1883:1883"  # Puerto estándar de Mosquitto MQTT
     volumes:
       #- ./mosquitto/config:/mosquitto/config
      # - ./mosquitto/data:/mosquitto/data
