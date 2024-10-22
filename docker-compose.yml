@@ -1,0 +1,31 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node-api
+    ports:
+      - "3000:3000"  # Mapea el puerto 3000 del contenedor al puerto 3000 en tu host
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+
+  spa:
+    build:
+      context: .
+      dockerfile: Dockerfile.spa  # Este es para tu SPA
+    ports:
+      - "8080:8080"
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    ports:
+      - "1884:1884"  # Puerto estándar de Mosquitto MQTT
+    volumes:
+      #- ./mosquitto/config:/mosquitto/config
+     # - ./mosquitto/data:/mosquitto/data
+      #- ./mosquitto/log:/mosquitto/log
+     - "C:/Users/admin/Desktop/Distribuidos/cursada 2024/TP-Sistema-Distribuidos/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf"
+
+    restart: unless-stopped
