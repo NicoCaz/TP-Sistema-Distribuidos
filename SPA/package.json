@@ -15,5 +15,8 @@
     "nodemon": "^2.0.15"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "mqtt": "^4.3.8"
+  }
 }
