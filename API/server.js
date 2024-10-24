@@ -10,7 +10,7 @@ const server = http.createServer((req, res) => {
 
     // Configurar CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,PUT, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (method === 'OPTIONS') {
@@ -56,6 +56,33 @@ const server = http.createServer((req, res) => {
         console.log('Lista de vacas solicitada');
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Lista de vacas', vacas }));
+        }
+
+     else if (path.startsWith('/vacas/') && method === 'PUT') {
+        const tag = path.split('/')[2]; 
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString(); 
+        });
+        req.on('end', () => {
+            try {
+                const { nombre } = JSON.parse(body); 
+                let vaca = vacas.find(v => v.tag === tag); 
+                if (vaca) {
+                    vaca.nombre = nombre; 
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Vaca actualizada', vaca }));
+                } else {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Vaca no encontrada', tag }));
+                }
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Error al actualizar la vaca', error: error.message }));
+            }
+        });
+    
+
     } else {
         console.log(`Ruta no encontrada: ${method} ${path}`);
         res.writeHead(404, { 'Content-Type': 'application/json' });
