@@ -52,6 +52,16 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             try {
                 const { nombre, tag } = JSON.parse(body);
+
+                if (!nombre || !tag) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    return res.end(JSON.stringify({ message: 'Nombre y tag son requeridos' }));
+                }
+                if (vacas.some(vaca => vaca.tag === tag)) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    return res.end(JSON.stringify({ message: 'El tag ya existe' }));
+                }
+
                 vacas.push({ nombre, tag });
                 savevacas();
                 console.log(`Vaca creada: ${nombre} con tag ${tag}`);
