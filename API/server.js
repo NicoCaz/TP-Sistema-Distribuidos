@@ -1,7 +1,30 @@
 const http = require('http');
 const url = require('url');
 
-let vacas = [];
+const fs = require('fs');
+const path = require('path');
+
+const vacasFilePath = path.join(__dirname, 'vacas.json');
+
+function loadvacas() {
+    try {
+        const data = fs.readFileSync(vacasFilePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error al leer el archivo vacas.json:', error);
+        return [];
+    }
+}
+
+function savevacas() {
+    try {
+        fs.writeFileSync(vacasFilePath, JSON.stringify(vacas, null, 2), 'utf8');
+    } catch (error) {
+        console.error('Error al guardar en vacas.json:', error);
+    }
+}
+
+let vacas = loadvacas();
 
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
@@ -30,6 +53,7 @@ const server = http.createServer((req, res) => {
             try {
                 const { nombre, tag } = JSON.parse(body);
                 vacas.push({ nombre, tag });
+                savevacas();
                 console.log(`Vaca creada: ${nombre} con tag ${tag}`);
                 res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ message: 'Vaca creada', vaca: { nombre, tag } }));
@@ -44,6 +68,7 @@ const server = http.createServer((req, res) => {
         const initialLength = vacas.length;
         vacas = vacas.filter(vaca => vaca.tag !== tag);
         if (vacas.length < initialLength) {
+            savevacas();
             console.log(`Vaca con tag ${tag} eliminada`);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ message: 'Vaca eliminada', tag }));
@@ -70,6 +95,7 @@ const server = http.createServer((req, res) => {
                 let vaca = vacas.find(v => v.tag === tag); 
                 if (vaca) {
                     vaca.nombre = nombre; 
+                    savevacas();
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ message: 'Vaca actualizada', vaca }));
                 } else {
