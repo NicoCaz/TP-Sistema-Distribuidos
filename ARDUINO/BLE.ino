@@ -2,13 +2,15 @@
 #include <PubSubClient.h>
 #include <BLEDevice.h>
 #include <BLEScan.h>
+#include <BLEAdvertisedDevice.h>
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
 const char* ssid = "Fibertel WiFi980 2.4GHz";  
 const char* password = "chesterton123";  // xD
-const char* mqttServer = "localhost"; 
+//IPAddress mqtt_server = {192, 168, 0, 1};
+const char* mqttServer = "192.168.0.4"; 
 const int mqttPort = 1883; 
 const char* topic = "test/topic"; // El topic donde se publicará la lista de dispositivos
 
@@ -17,17 +19,33 @@ const long interval = 5000; // Intervalo de tiempo en milisegundos (5 segundos)
 
 BLEScan* pBLEScan;
 
+class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
+  void onResult(BLEAdvertisedDevice advertisedDevice) {
+    Serial.printf("Advertised Device: %s \n", advertisedDevice.toString().c_str());
+
+    // publicar la direccion del dispositivo en MQTT
+    String deviceAddress = advertisedDevice.getAddress().toString().c_str();
+    if (client.publish(topic, deviceAddress.c_str())) {
+      Serial.print("Dispositivo BLE enviado a MQTT: ");
+      Serial.println(deviceAddress);
+    } else {
+      Serial.println("Error al publicar en MQTT");
+    }
+  }
+};
+
 void setup() {
   Serial.begin(115200); 
 
-
   connectToWiFi();
+  connectToMQTT();
 
   client.setServer(mqttServer, mqttPort);
 
   // Inicializar BLE
   BLEDevice::init("ESP32_BLE"); // Nombre del dispositivo BLE
   pBLEScan = BLEDevice::getScan(); // Crear el escáner BLE
+  pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
   pBLEScan->setActiveScan(true); // Escaneo activo
   pBLEScan->setInterval(100); // Intervalo de escaneo
   pBLEScan->setWindow(99); // Ventana de escaneo
@@ -39,39 +57,27 @@ void loop() {
     connectToWiFi(); // Intenta reconectar
   }
 
+  if (!client.connected()) {
+    Serial.println("Desconectado del MQTT, intentando reconectar...");
+    connectToMQTT(); // Intenta reconectar al MQTT
+  } else {
+    client.loop(); // Asegúrate de que el cliente MQTT esté funcionando
+  }
+
   unsigned long currentMillis = millis();  
   if (currentMillis - previousMillis >= interval) {   
     previousMillis = currentMillis; 
 
     // Escanear dispositivos BLE cercanos
     Serial.println("Buscando dispositivos BLE cercanos...");
-    BLEScanResults * scanResults = pBLEScan->start(5,false); // Escanear durante 5 segundos
-    int devicesFound = scanResults->getCount();
-
-    if (devicesFound > 0) {
-      for (int i = 0; i < devicesFound; i++) {
-        String deviceAddress = scanResults->getDevice(i).getAddress().toString().c_str();
-
-        // Publicar la dirección de cada dispositivo en MQTT una por una
-        if (client.publish(topic, deviceAddress.c_str())) {
-          Serial.print("Dispositivo BLE enviado a MQTT: ");
-          Serial.println(deviceAddress);
-        } else {
-          Serial.println("Error al publicar en MQTT");
-        }
-
-        delay(1000); // Esperar 1 segundo antes de enviar el siguiente dispositivo
-      }
-    } else {
-      Serial.println("No se encontraron dispositivos.");
-    }
+    BLEScanResults * scanResults = pBLEScan->start(5, false); // Escanear durante 5 segundos
     pBLEScan->stop(); // Detener el escaneo
   }
 }
 
 void connectToWiFi() {
   Serial.print("Conectando a WiFi...");
-  
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   
   while (WiFi.status() != WL_CONNECTED) {
@@ -82,4 +88,20 @@ void connectToWiFi() {
   Serial.println("");
   Serial.print("Conectado a WiFi. Dirección IP: ");
   Serial.println(WiFi.localIP());
+}
+
+void connectToMQTT() {
+  while (!client.connected()) {
+    Serial.print("Intentando conectar a MQTT...");
+    // Intentar conectarse al servidor MQTT
+    if (client.connect("ESP32Client")) { // Puedes cambiar "ESP32Client" por un ID único si lo deseas
+      Serial.println("conectado");
+      // Opcional: Suscribirse a algún topic si lo necesitas
+    } else {
+      Serial.print("Error de conexión, rc=");
+      Serial.print(client.state());
+      Serial.println(" Intentando de nuevo en 5 segundos...");
+      delay(5000); // Esperar 5 segundos antes de volver a intentar
+    }
+  }
 }
