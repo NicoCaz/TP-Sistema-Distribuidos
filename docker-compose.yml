@@ -26,6 +26,7 @@ services:
       #- ./mosquitto/config:/mosquitto/config
      # - ./mosquitto/data:/mosquitto/data
       #- ./mosquitto/log:/mosquitto/log
-     - "C:/Users/admin/Desktop/Distribuidos/cursada 2024/TP-Sistema-Distribuidos/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf"
+      # - "D:/Carpetas de usuario/Documentos/Repos/TP-Sistema-Distribuidos/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf" #nb
+     - "C:/Users/admin/Desktop/Distribuidos/cursada 2024/TP-Sistema-Distribuidos/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf" 
 
     restart: unless-stopped
