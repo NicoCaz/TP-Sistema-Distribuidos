@@ -1,10 +1,9 @@
 const routes = {
-    404: "/pages/404.html",
-    "/": "/pages/index.html",
-    "/about": "/pages/about.html",
-    "/animales": "/pages/animales.html",
-    "/mapa": "/pages/mapa.html",
-
+    404: "/SPA/pages/404.html",
+    "/": "/SPA/pages/index.html",
+    "/about": "/SPA/pages/about.html",
+    "/animales": "/SPA/pages/animales.html",
+    "/mapa": "/SPA/pages/mapa.html",
 };
 
 const handleLocation = async () => {
