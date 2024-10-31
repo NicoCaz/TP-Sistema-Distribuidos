@@ -1,5 +1,6 @@
 const http = require('http');
 const url = require('url');
+const rutasAnimales = require('./routes/animals.js');//si usamos route
 
 let vacas = [];
 
@@ -41,6 +42,7 @@ const server = http.createServer((req, res) => {
                 res.end(JSON.stringify({ message: 'Error al crear la vaca', error: error.message }));
             }
         });
+        //prueba para ver si funciona
     }else if (path === '/animals') {
         rutasAnimales(req, res);
 
