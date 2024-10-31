@@ -13,6 +13,8 @@ const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+
+
     if (method === 'OPTIONS') {
         res.writeHead(204);
         res.end();
@@ -39,6 +41,9 @@ const server = http.createServer((req, res) => {
                 res.end(JSON.stringify({ message: 'Error al crear la vaca', error: error.message }));
             }
         });
+    }else if (path === '/animals') {
+        rutasAnimales(req, res);
+
     } else if (path.startsWith('/vacas/') && method === 'DELETE') {
         const tag = path.split('/')[2];
         const initialLength = vacas.length;
@@ -93,4 +98,3 @@ client.on('message', (topic, message) => {
   console.log(`Mensaje recibido en el tema ${topic}: ${message.toString()}`);
 });
 
-// El servidor HTTP o lógica adicional va aquí...
