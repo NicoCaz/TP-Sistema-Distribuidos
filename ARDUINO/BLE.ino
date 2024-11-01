@@ -41,6 +41,7 @@ void setup() {
 
   client.setServer(IPAddress(192, 168, 0, 4), mqttPort);
 
+
   // Inicializar BLE
   BLEDevice::init("ESP32_BLE"); // Nombre del dispositivo BLE
   pBLEScan = BLEDevice::getScan(); // Crear el escáner BLE
@@ -54,6 +55,7 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Desconectado del Wi-Fi, intentando reconectar...");
     connectToWiFi(); // Intenta reconectar
+
   } else {
    /* Serial.println("Conexión Wi-Fi activa.");
     Serial.print("SSID: ");
@@ -61,6 +63,9 @@ void loop() {
     Serial.print("Dirección IP: ");
     Serial.println(WiFi.localIP()); */
   } 
+
+  }
+
 
   if (!client.connected()) {
     Serial.println("Desconectado del MQTT, intentando reconectar...");
@@ -79,6 +84,7 @@ void loop() {
   }
 
   
+
 }
 
 void connectToWiFi() {
@@ -102,11 +108,11 @@ void connectToMQTT() {
     // Intentar conectarse al servidor MQTT
     if (client.connect("ESP32Client")) { 
       Serial.println("conectado");
+
     } else {
       Serial.print("Error de conexión, rc=");
       Serial.print(client.state());
       Serial.println(" Intentando de nuevo en 5 segundos...");
       delay(5000); // Esperar 5 segundos antes de volver a intentar
     }
- // }
 }
