@@ -11,6 +11,8 @@ I also created a codesandbox you can try out [here](https://codesandbox.io/s/van
 
 
 tira en consola , va estoy haciendo pruebas , te crea una imagen como de 900mb
-docker build -t node-test .
-docker-compose up -d // levanta las imagenes
+0¡ docker build -t node-test .
+1= docker-compose up -d // levanta las imagenes
 docker ps // para ver los contenedores que estan ejecutando
+
+docker exec -it mosquitto mosquitto_pub -h localhost -t "test/topic" -m "vamooos"docker exec -it mosquitto mosquitto_sub -h localhost -t "test/topic"

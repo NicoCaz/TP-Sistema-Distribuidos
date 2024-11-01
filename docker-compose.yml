@@ -14,6 +14,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.spa  # Este es para tu SPA
+    command: npm run start
     ports:
       - "8080:8080"
 
@@ -21,12 +22,17 @@ services:
     image: eclipse-mosquitto:latest
     container_name: mosquitto
     ports:
-      - "1884:1884"  # Puerto estándar de Mosquitto MQTT
+      - "1883:1883"  # Puerto estándar de Mosquitto MQTT
     volumes:
-      #- ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/config:/mosquitto/config
      # - ./mosquitto/data:/mosquitto/data
       #- ./mosquitto/log:/mosquitto/log
+
+      #- "D:/Carpetas de usuario/Documentos/Repos/TP-Sistema-Distribuidos/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf"
+     #- "C:/Users/admin/Desktop/Distribuidos/cursada 2024/TP-Sistema-Distribuidos/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf"
+
       # - "D:/Carpetas de usuario/Documentos/Repos/TP-Sistema-Distribuidos/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf" #nb
      - "C:/Users/admin/Desktop/Distribuidos/cursada 2024/TP-Sistema-Distribuidos/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf" 
+
 
     restart: unless-stopped

@@ -9,7 +9,6 @@ PubSubClient client(espClient);
 
 const char* ssid = "Fibertel WiFi980 2.4GHz";  
 const char* password = "chesterton123";  // xD
-//IPAddress mqtt_server = {192, 168, 0, 1};
 const char* mqttServer = "192.168.0.4"; 
 const int mqttPort = 1883; 
 const char* topic = "test/topic"; // El topic donde se publicará la lista de dispositivos
@@ -40,7 +39,8 @@ void setup() {
   connectToWiFi();
   connectToMQTT();
 
-  client.setServer(mqttServer, mqttPort);
+  client.setServer(IPAddress(192, 168, 0, 4), mqttPort);
+
 
   // Inicializar BLE
   BLEDevice::init("ESP32_BLE"); // Nombre del dispositivo BLE
@@ -55,24 +55,36 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Desconectado del Wi-Fi, intentando reconectar...");
     connectToWiFi(); // Intenta reconectar
+
+  } else {
+   /* Serial.println("Conexión Wi-Fi activa.");
+    Serial.print("SSID: ");
+    Serial.println(WiFi.SSID());
+    Serial.print("Dirección IP: ");
+    Serial.println(WiFi.localIP()); */
+  } 
+
   }
+
 
   if (!client.connected()) {
     Serial.println("Desconectado del MQTT, intentando reconectar...");
     connectToMQTT(); // Intenta reconectar al MQTT
   } else {
-    client.loop(); // Asegúrate de que el cliente MQTT esté funcionando
+    client.loop(); 
+    unsigned long currentMillis = millis();  
+      if (currentMillis - previousMillis >= interval) {   
+        previousMillis = currentMillis; 
+
+        // Escanear dispositivos BLE cercanos
+        Serial.println("Buscando dispositivos BLE cercanos...");
+        BLEScanResults * scanResults = pBLEScan->start(5, false); // Escanear durante 5 segundos
+        pBLEScan->stop(); 
+      }
   }
 
-  unsigned long currentMillis = millis();  
-  if (currentMillis - previousMillis >= interval) {   
-    previousMillis = currentMillis; 
+  
 
-    // Escanear dispositivos BLE cercanos
-    Serial.println("Buscando dispositivos BLE cercanos...");
-    BLEScanResults * scanResults = pBLEScan->start(5, false); // Escanear durante 5 segundos
-    pBLEScan->stop(); // Detener el escaneo
-  }
 }
 
 void connectToWiFi() {
@@ -91,17 +103,16 @@ void connectToWiFi() {
 }
 
 void connectToMQTT() {
-  while (!client.connected()) {
+  //while (!client.connected()) {
     Serial.print("Intentando conectar a MQTT...");
     // Intentar conectarse al servidor MQTT
-    if (client.connect("ESP32Client")) { // Puedes cambiar "ESP32Client" por un ID único si lo deseas
+    if (client.connect("ESP32Client")) { 
       Serial.println("conectado");
-      // Opcional: Suscribirse a algún topic si lo necesitas
+
     } else {
       Serial.print("Error de conexión, rc=");
       Serial.print(client.state());
       Serial.println(" Intentando de nuevo en 5 segundos...");
       delay(5000); // Esperar 5 segundos antes de volver a intentar
     }
-  }
 }

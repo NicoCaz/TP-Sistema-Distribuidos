@@ -1,30 +1,8 @@
 const http = require('http');
 const url = require('url');
+const rutasAnimales = require('./routes/animals.js');//si usamos route
 
-const fs = require('fs');
-const path = require('path');
-
-const vacasFilePath = path.join(__dirname, 'vacas.json');
-
-function loadvacas() {
-    try {
-        const data = fs.readFileSync(vacasFilePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error al leer el archivo vacas.json:', error);
-        return [];
-    }
-}
-
-function savevacas() {
-    try {
-        fs.writeFileSync(vacasFilePath, JSON.stringify(vacas, null, 2), 'utf8');
-    } catch (error) {
-        console.error('Error al guardar en vacas.json:', error);
-    }
-}
-
-let vacas = loadvacas();
+let vacas = [];
 
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
@@ -33,8 +11,10 @@ const server = http.createServer((req, res) => {
 
     // Configurar CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,PUT, POST, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+
 
     if (method === 'OPTIONS') {
         res.writeHead(204);
@@ -52,18 +32,7 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             try {
                 const { nombre, tag } = JSON.parse(body);
-
-                if (!nombre || !tag) {
-                    res.writeHead(400, { 'Content-Type': 'application/json' });
-                    return res.end(JSON.stringify({ message: 'Nombre y tag son requeridos' }));
-                }
-                if (vacas.some(vaca => vaca.tag === tag)) {
-                    res.writeHead(400, { 'Content-Type': 'application/json' });
-                    return res.end(JSON.stringify({ message: 'El tag ya existe' }));
-                }
-
                 vacas.push({ nombre, tag });
-                savevacas();
                 console.log(`Vaca creada: ${nombre} con tag ${tag}`);
                 res.writeHead(201, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ message: 'Vaca creada', vaca: { nombre, tag } }));
@@ -73,12 +42,15 @@ const server = http.createServer((req, res) => {
                 res.end(JSON.stringify({ message: 'Error al crear la vaca', error: error.message }));
             }
         });
+        //prueba para ver si funciona
+    }else if (path === '/animals') {
+        rutasAnimales(req, res);
+
     } else if (path.startsWith('/vacas/') && method === 'DELETE') {
         const tag = path.split('/')[2];
         const initialLength = vacas.length;
         vacas = vacas.filter(vaca => vaca.tag !== tag);
         if (vacas.length < initialLength) {
-            savevacas();
             console.log(`Vaca con tag ${tag} eliminada`);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ message: 'Vaca eliminada', tag }));
@@ -91,34 +63,6 @@ const server = http.createServer((req, res) => {
         console.log('Lista de vacas solicitada');
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Lista de vacas', vacas }));
-        }
-
-     else if (path.startsWith('/vacas/') && method === 'PUT') {
-        const tag = path.split('/')[2]; 
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString(); 
-        });
-        req.on('end', () => {
-            try {
-                const { nombre } = JSON.parse(body); 
-                let vaca = vacas.find(v => v.tag === tag); 
-                if (vaca) {
-                    vaca.nombre = nombre; 
-                    savevacas();
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Vaca actualizada', vaca }));
-                } else {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Vaca no encontrada', tag }));
-                }
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Error al actualizar la vaca', error: error.message }));
-            }
-        });
-    
-
     } else {
         console.log(`Ruta no encontrada: ${method} ${path}`);
         res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -130,3 +74,29 @@ const PORT = 3000;
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
+
+const mqtt = require('mqtt');
+
+// Conectar al broker MQTT (puede ser localhost si ambos están en la misma red)
+const client = mqtt.connect('mqtt://localhost:1884');
+
+// Cuando se conecta exitosamente
+client.on('connect', () => {
+  console.log('Conectado a Mosquitto MQTT Broker');
+
+  // Suscribirse a un tema
+  client.subscribe('test/topic', (err) => {
+    if (!err) {
+      console.log('Suscrito al tema test/topic');
+    }
+  });
+
+  // Publicar un mensaje en el tema
+  client.publish('test/topic', '¡Hola desde Node.js!');
+});
+
+// Manejar los mensajes recibidos
+client.on('message', (topic, message) => {
+  console.log(`Mensaje recibido en el tema ${topic}: ${message.toString()}`);
+});
+
