@@ -6,10 +6,9 @@ const rutasRefresh = require('./routes/refresh.js');
 const rutasVacas = require('./routes/vaca.js');
 const url = require('url'); 
 const fs = require('fs');
-const path = require('path');
+//const path = require('path');
 const dotenv = require('dotenv');
 
-const mqttClient = require('./mqttCliente.js');
 
 dotenv.config();
 
