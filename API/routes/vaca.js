@@ -1,6 +1,6 @@
 const fs = require('fs');
-const auxFunc = require('../helpers/auxFunctions.js');
-const url = require('url'); // Asegúrate de importar url
+const auxFunc = require('../helpers/auxFunctionsVaca.js');
+const url = require('url');
 
 let vacas = auxFunc.loadvacas();
 

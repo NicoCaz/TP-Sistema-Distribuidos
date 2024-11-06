@@ -1,0 +1,17 @@
+[
+  {
+    "id": "BT006",
+    "name": "Vaca6",
+    "description": "Una vaca con un collar BT001"
+  },
+  {
+    "id": "BT003",
+    "name": "Vaca3",
+    "description": "Una vaca con un collar BT003"
+  },
+  {
+    "id": "BT004",
+    "name": "Vaca4",
+    "description": "Una vaca con un collar BT001"
+  }
+]
