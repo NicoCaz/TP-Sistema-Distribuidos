@@ -2,6 +2,7 @@ services:
   mosquitto:
     image: eclipse-mosquitto:latest
     container_name: mosquitto
+    network_mode: "bridge"  
     ports:
       - "1883:1883"  # Puerto estándar de Mosquitto MQTT
     volumes:

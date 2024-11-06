@@ -1,7 +1,7 @@
 const mqtt = require('mqtt');
 
 // Conectar al broker MQTT (puede ser localhost si ambos están en la misma red)
-const client = mqtt.connect('mqtt://localhost:1884');
+const client = mqtt.connect('mqtt://192.168.0.4:1883'); //aca poner sí o sí la ip local!!!! no funciona con localhost
 
 // Cuando se conecta exitosamente
 client.on('connect', () => {
