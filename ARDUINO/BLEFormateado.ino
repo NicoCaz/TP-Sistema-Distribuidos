@@ -11,6 +11,7 @@ const char* ssid = "Fibertel WiFi980 2.4GHz";
 const char* password = "chesterton123";  // xD
 const char* mqttServer = "192.168.0.4"; 
 const int mqttPort = 1883; 
+String macWemos;
 const char* topic = "test/topic"; // El topic donde se publicará la lista de dispositivos
 
 unsigned long previousMillis = 0; // Almacena el último tiempo de ejecución
@@ -18,7 +19,7 @@ const long interval = 5000; // Intervalo de tiempo en milisegundos (5 segundos)
 
 BLEScan* pBLEScan;
 
-class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
+/*class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
   void onResult(BLEAdvertisedDevice advertisedDevice) {
     Serial.printf("Advertised Device: %s \n", advertisedDevice.toString().c_str());
 
@@ -31,21 +32,20 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
       Serial.println("Error al publicar en MQTT");
     }
   }
-};
+}; */
 
 void setup() {
   Serial.begin(115200); 
-
+  
   connectToWiFi();
   connectToMQTT();
 
   client.setServer(IPAddress(192, 168, 0, 4), mqttPort);
 
-
   // Inicializar BLE
   BLEDevice::init("ESP32_BLE"); // Nombre del dispositivo BLE
   pBLEScan = BLEDevice::getScan(); // Crear el escáner BLE
-  pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
+ // pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
   pBLEScan->setActiveScan(true); // Escaneo activo
   pBLEScan->setInterval(100); // Intervalo de escaneo
   pBLEScan->setWindow(99); // Ventana de escaneo
@@ -55,7 +55,6 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Desconectado del Wi-Fi, intentando reconectar...");
     connectToWiFi(); // Intenta reconectar
-
   } else {
    /* Serial.println("Conexión Wi-Fi activa.");
     Serial.print("SSID: ");
@@ -63,8 +62,6 @@ void loop() {
     Serial.print("Dirección IP: ");
     Serial.println(WiFi.localIP()); */
   } 
-
-  }
 
 
   if (!client.connected()) {
@@ -80,11 +77,43 @@ void loop() {
         Serial.println("Buscando dispositivos BLE cercanos...");
         BLEScanResults * scanResults = pBLEScan->start(5, false); // Escanear durante 5 segundos
         pBLEScan->stop(); 
+
+
+        String jsonData = "{ \"checkpointID\": \"" + macWemos + "\", \"animals\": [";
+
+        // Mostrar la cantidad de dispositivos BLE encontrados
+        Serial.println("Cantidad de cosos escaneados:");
+        Serial.println(scanResults->getCount());
+
+        // Iterar sobre los dispositivos BLE escaneados
+        for (int i = 0; i < scanResults->getCount(); i++) {
+          BLEAdvertisedDevice device = scanResults->getDevice(i);
+          String id = device.getAddress().toString().c_str();
+          int rssi = device.getRSSI();
+
+          // Añadir cada dispositivo al JSON
+          jsonData += "{ \"id\": \"" + id + "\", \"rssi\": " + String(rssi) + " }";
+
+          // Añadir coma entre dispositivos, excepto después del último
+          if (i < scanResults->getCount() - 1) {
+            jsonData += ", ";  // Añadir coma entre elementos
+          }
+        }
+
+        // Cerrar el array y el objeto JSON
+        jsonData += "] }";
+      Serial.println("Datos escaneados en JSON:");
+      Serial.println(jsonData); // Imprimir el JSON en el formato deseado
+
+        if (client.publish(topic, jsonData.c_str())) {
+        Serial.println("Datos enviados al servidor MQTT");
+      } else {
+        Serial.println("Error al publicar en MQTT");
+      }
       }
   }
 
   
-
 }
 
 void connectToWiFi() {
@@ -100,6 +129,9 @@ void connectToWiFi() {
   Serial.println("");
   Serial.print("Conectado a WiFi. Dirección IP: ");
   Serial.println(WiFi.localIP());
+  macWemos = WiFi.macAddress(); 
+  Serial.print("Direccion MAC WiFi: ");
+  Serial.println(macWemos);
 }
 
 void connectToMQTT() {
@@ -108,11 +140,11 @@ void connectToMQTT() {
     // Intentar conectarse al servidor MQTT
     if (client.connect("ESP32Client")) { 
       Serial.println("conectado");
-
     } else {
       Serial.print("Error de conexión, rc=");
       Serial.print(client.state());
       Serial.println(" Intentando de nuevo en 5 segundos...");
       delay(5000); // Esperar 5 segundos antes de volver a intentar
     }
+ // }
 }
