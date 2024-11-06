@@ -1,44 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa con Leaflet</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        #map {
-            height: 400px;
-            width: 100%;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="page-container align-center">
-        <h1>Mapa con Leaflet asfdasd</h1>
-        <div id="map"></div>
+<div class="page-container align-center">
+    <h1>Mapa con Leaflet</h1>
+    <div id="map" style="height: 400px; width: 100%;"></div>
     </div>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-        var map = L.map('map').setView([51.505, -0.09], 13);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        var markers = [
-            { lat: 51.5, lng: -0.09, popup: 'Marker 1' },
-            { lat: 51.51, lng: -0.1, popup: 'Marker 2' },
-            { lat: 51.49, lng: -0.08, popup: 'Marker 3' }
-        ];
-
-        markers.forEach(function (marker) {
-            L.marker([marker.lat, marker.lng]).addTo(map)
-                .bindPopup(marker.popup)
-                .openPopup();
-        });
-    </script>
-</body>
-
-</html>
+    

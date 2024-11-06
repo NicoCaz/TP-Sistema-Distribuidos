@@ -1,33 +1,57 @@
 const routes = {
-    404: "/SPA/pages/404.html",
-    "/": "/SPA/pages/index.html",
-    "/about": "/SPA/pages/about.html",
-    "/animales": "/SPA/pages/animales.html",
-    "/mapa": "/SPA/pages/mapa.html",
+    '/': '/pages/index.html',
+    '/about': '/pages/about.html',
+    '/animales': '/pages/animales.html',
+    '/mapa': '/pages/mapa.html'
 };
 
-const handleLocation = async () => {
-    const path = window.location.pathname;
-    const route = routes[path] || routes[404];
+async function loadContent(url) {
     try {
-        const response = await fetch(route);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const html = await response.text();
-        document.getElementById("main-page").innerHTML = html;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const content = await response.text();
+        
+        // Limpiar y establecer el nuevo contenido
+        const mainPage = document.getElementById('main-page');
+        mainPage.innerHTML = content;
+
+        // Si estamos en la página del mapa, inicializar después de un breve retraso
+        if (window.location.pathname === '/mapa') {
+            console.log('Detectada página de mapa');
+            setTimeout(() => {
+                if (typeof window.initializeMap === 'function') {
+                    console.log('Inicializando mapa');
+                    window.initializeMap();
+                } else {
+                    console.error('Función initializeMap no encontrada');
+                }
+            }, 100);
+        }
     } catch (error) {
-        console.error('Fetch error:', error);
-        document.getElementById("main-page").innerHTML = "<h1>Error loading page</h1>";
+        console.error('Error cargando contenido:', error);
+        document.getElementById('main-page').innerHTML = '<h1>Error 404: Página no encontrada</h1>';
     }
-};
+}
 
-const route = (event) => {
-    event = event || window.event;
-    event.preventDefault();
-    window.history.pushState({}, "", event.target.href);
-    handleLocation();
-};
+function route(event) {
+    if (event) {
+        event.preventDefault();
+        const path = event.target.getAttribute('href');
+        window.history.pushState({}, '', path);
+    }
+    
+    const path = window.location.pathname;
+    const contentPath = routes[path] || routes['/'];
+    loadContent(contentPath);
+}
 
-window.onpopstate = handleLocation;
+window.addEventListener('popstate', () => {
+    route();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    route();
+});
+
+// Exponer la función route globalmente
 window.route = route;
-
-document.addEventListener("DOMContentLoaded", handleLocation);

@@ -39,16 +39,6 @@ hr {
     margin: 0.5rem 0;
 }
 
-.page-container {
-    display: flex;
-    flex-direction: column;
-
-    padding: 0 1rem;
-}
-
-.align-center {
-    align-items: center;
-}
 
 .socials-container {
     display: flex;
@@ -75,4 +65,19 @@ hr {
 .socials-card > i {
     font-size: 1.5rem;
     margin-right: 0.5rem;
+}
+
+#map {
+    height: 400px;
+    width: 100%;
+    margin: 20px 0;
+    z-index: 1;
+}
+
+.page-container {
+    padding: 20px;
+}
+
+.align-center {
+    text-align: center;
 }
