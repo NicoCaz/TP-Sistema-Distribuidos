@@ -1,23 +1,28 @@
 {
-    "checkpoints": [
-      {
-        "id": "cee1f9bf-6e42-4071-859a-82d71e231cc1",
-        "lat": -34.603722,
-        "long": -58.381592,
-        "description": "Punto de control en zona de alimentación"
-      },
-      {
-        "id": "32c7e94b-2b08-4ff5-80e9-ecb0f7795425",
-        "lat": -34.608722,
-        "long": -58.373602,
-        "description": "Punto de control cerca del lago"
-      },
-      {
-        "id": "d5046589-a6be-4839-9454-f0ab184fa51a",
-        "lat": -34.615722,
-        "long": -58.370002,
-        "description": "Punto de control en área de descanso"
-      }
-    ]
-  }
-  
+  "checkpoints": [
+    {
+      "id": "cee1f9bf-6e42-4071-859a-82d71e231cc1",
+      "lat": -34.603722,
+      "long": -58.381592,
+      "description": "Punto de control en zona de alimentación"
+    },
+    {
+      "id": "32c7e94b-2b08-4ff5-80e9-ecb0f7795425",
+      "lat": -34.608722,
+      "long": -58.373602,
+      "description": "Punto de control cerca del lago"
+    },
+    {
+      "id": "d5046589-a6be-4839-9454-f0ab184fa51a",
+      "lat": -34.615722,
+      "long": -58.370002,
+      "description": "Punto de control en área de descanso"
+    },
+    {
+      "id": "p-nG6Vu4LUw93AeFkCSvN",
+      "lat": -22.603722,
+      "long": -22.381592,
+      "description": "mod 1 n"
+    }
+  ]
+}
