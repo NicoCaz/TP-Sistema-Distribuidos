@@ -4,11 +4,12 @@ const rutasCheckpoint = require('./routes/checkpoints.js');
 const rutasLogin = require('./routes/login.js');
 const rutasRefresh = require('./routes/refresh.js');
 const rutasVacas = require('./routes/vaca.js');
+const rutasAvailableDevices = require('./routes/availableDevices.js');
 const url = require('url'); 
 const fs = require('fs');
 //const path = require('path');
 const dotenv = require('dotenv');
-
+ 
 
 dotenv.config();
 
@@ -39,6 +40,8 @@ const server = http.createServer((req, res) => {
     rutasLogin(req, res);
   }  else if (req.url.startsWith('/refresh')) {
     rutasRefresh(req, res);
+  }  else if (req.url.startsWith('/availableDevices')) {
+    rutasAvailableDevices(req, res);
   }//a modo de ejemplo dejo el de vacas,pero en teoria no existe esa ruta
   else if (req.url.startsWith('/vacas')) {
     rutasVacas(req, res);
