@@ -7,8 +7,8 @@ export class Router {
                     this.cleanupAnimalsPage();
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
+                    this.cleanupMapPage();
                 }
-                
             },
             '/about': {
                 template: '/pages/about.html',
@@ -22,6 +22,7 @@ export class Router {
                     this.cleanupAnimalsPage();
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
+                    this.cleanupMapPage();
                 }
             },
             '/animales': {
@@ -36,15 +37,22 @@ export class Router {
                     this.cleanupAnimalsPage();
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
+                    this.cleanupMapPage();
                 }
             },
             '/mapa': {
                 template: '/pages/mapa.html',
                 script: '/js/pages/mapa.js',
+                init: () => {
+                    if (window.initMapPage) {
+                        window.initMapPage();
+                    }
+                },
                 cleanup: () => {
                     this.cleanupAnimalsPage();
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
+                    this.cleanupMapPage();
                 }
             },
             '/puntos': {
@@ -59,6 +67,7 @@ export class Router {
                     this.cleanupAnimalsPage();
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
+                    this.cleanupMapPage();
                 }
             },
         };
@@ -73,23 +82,32 @@ export class Router {
             window.cleanupAnimalsPage();
         }
     }
+
     cleanupAboutPage() {
         if (window.cleanupAboutPage) {
             window.cleanupAboutPage();
         }
     }
+
     cleanupPointsPage() {
-        if (window.cleanupPointsPage) { 
+        if (window.cleanupPointsPage) {
             window.cleanupPointsPage();
         }
     }
 
-
+    cleanupMapPage() {
+        if (window.cleanupMapPage) {
+            window.cleanupMapPage();
+        }
+    }
 
     cleanupCurrentPage() {
-        const currentRoute = this.routes[this.currentPath];
-        if (currentRoute?.cleanup) {
-            currentRoute.cleanup();
+        // No llamar a la función cleanup de la ruta directamente
+        if (this.currentPath) {
+            this.cleanupAnimalsPage();
+            this.cleanupAboutPage();
+            this.cleanupPointsPage();
+            this.cleanupMapPage();
         }
     }
 
@@ -117,10 +135,7 @@ export class Router {
     navigateTo(path) {
         if (this.currentPath === path) return;
         
-        // Ejecutar limpieza de la ruta actual si existe
-        if (this.currentPath && this.routes[this.currentPath]?.cleanup) {
-            this.routes[this.currentPath].cleanup();
-        }
+        this.cleanupCurrentPage();
 
         window.history.pushState({}, '', path);
         this.currentPath = path;
@@ -167,10 +182,7 @@ export class Router {
     async route(path = window.location.pathname) {
         console.log('Routing to:', path);
         
-        // Ejecutar limpieza de la ruta actual si existe
-        if (this.currentPath && this.routes[this.currentPath]?.cleanup) {
-            this.routes[this.currentPath].cleanup();
-        }
+        this.cleanupCurrentPage();
 
         const route = this.routes[path] || this.routes['/'];
         this.currentPath = path;

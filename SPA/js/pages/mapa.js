@@ -1,62 +1,159 @@
-let map = null;
+import { MapService } from '../services/MapService.js';
 
-function initializeMap() {
-    console.log('Iniciando inicialización del mapa');
-    
-    // Esperar un momento para asegurar que el DOM esté listo
-    setTimeout(() => {
-        const mapElement = document.getElementById('map');
-        console.log('Buscando elemento del mapa:', mapElement);
+class MapPage {
+    constructor() {
+        console.log('Inicializando MapPage');
+        this.mapService = new MapService();
+        this.init();
+    }
+
+    async init() {
+        await this.initializeMap();
+        await this.loadPoints();
+        // Actualizar posiciones de animales cada 30 segundos
+        this.startAnimalPositionsUpdate();
+    }
+
+    async initializeMap() {
+        // Crear el mapa centrado en Argentina
+        this.map = L.map('map').setView([-38.416097, -63.616672], 4);
         
-        if (!mapElement) {
-            console.error('Elemento del mapa no encontrado');
-            return;
-        }
+        // Añadir la capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(this.map);
 
-        // Limpiar mapa existente si existe
-        if (map) {
-            console.log('Limpiando mapa existente');
-            map.remove();
-            map = null;
-        }
+        // Crear capas para puntos y animales
+        this.pointsLayer = L.layerGroup().addTo(this.map);
+        this.animalsLayer = L.layerGroup().addTo(this.map);
 
+        // Añadir control de capas
+        const overlays = {
+            "Puntos de Control": this.pointsLayer,
+            "Animales": this.animalsLayer
+        };
+        L.control.layers(null, overlays).addTo(this.map);
+    }
+
+    async loadPoints() {
         try {
-            console.log('Creando nuevo mapa');
-            map = L.map('map', {
-                center: [-34.603722, -58.381592],
-                zoom: 13
+            // Limpiar puntos existentes
+            this.pointsLayer.clearLayers();
+
+            // Cargar puntos de control
+            const points = await this.mapService.getCheckpoints();
+            points.forEach(point => {
+                const marker = L.marker([point.lat, point.long], {
+                    icon: L.divIcon({
+                        className: 'custom-div-icon',
+                        html: `<div class="marker-pin"></div>
+                              <i class="mdi mdi-map-marker"></i>`,
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42]
+                    })
+                });
+
+                marker.bindPopup(`
+                    <div class="popup-content">
+                        <h3>${point.description}</h3>
+                        <p>Lat: ${point.lat}</p>
+                        <p>Long: ${point.long}</p>
+                    </div>
+                `);
+
+                marker.addTo(this.pointsLayer);
             });
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // Agregar marcadores
-            const markers = [
-                { lat: -34.603722, lng: -58.381592, popup: 'alimentación' },
-                { lat: -34.608722, lng: -58.373602, popup: 'cerca del lago' },
-                { lat: -34.615722, lng: -58.370002, popup: 'área de descanso' },
-                { lat: -34.620722, lng: -58.365002, popup: 'Marker 4' },
-                { lat: -34.625722, lng: -58.360002, popup: 'Marker 5' }
-            ];
-
-            markers.forEach(marker => {
-                L.marker([marker.lat, marker.lng])
-                    .addTo(map)
-                    .bindPopup(marker.popup);
-            });
-
-            // Forzar actualización del tamaño del mapa
-            setTimeout(() => {
-                map.invalidateSize();
-                console.log('Mapa inicializado y actualizado');
-            }, 100);
 
         } catch (error) {
-            console.error('Error al inicializar el mapa:', error);
+            console.error('Error al cargar puntos:', error);
+            alert('Error al cargar los puntos de control');
         }
-    }, 100);
+    }
+
+    async updateAnimalPositions() {
+        try {
+            // Limpiar marcadores de animales existentes
+            this.animalsLayer.clearLayers();
+
+            // Cargar nuevas posiciones
+            const positions = await this.mapService.getAnimalPositions();
+            positions.forEach(animal => {
+                const marker = L.marker([animal.lat, animal.long], {
+                    icon: L.divIcon({
+                        className: 'custom-div-icon animal-icon',
+                        html: `<div class="marker-pin animal-pin"></div>
+                              <i class="mdi mdi-cow"></i>`,
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42]
+                    })
+                });
+
+                marker.bindPopup(`
+                    <div class="popup-content">
+                        <h3>${animal.description}</h3>
+                        <p>ID: ${animal.id}</p>
+                        <p>Lat: ${animal.lat}</p>
+                        <p>Long: ${animal.long}</p>
+                    </div>
+                `);
+
+                marker.addTo(this.animalsLayer);
+            });
+
+        } catch (error) {
+            console.error('Error al actualizar posiciones de animales:', error);
+        }
+    }
+
+    startAnimalPositionsUpdate() {
+        // Actualizar inmediatamente
+        this.updateAnimalPositions();
+        
+        // Actualizar cada 30 segundos
+        setInterval(() => {
+            this.updateAnimalPositions();
+        }, 30000);
+    }
+
+    cleanup() {
+        if (this.map) {
+            this.map.remove();
+            this.map = null;
+        }
+        // Limpiar el intervalo si existe
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+        }
+    }
 }
 
-// Exponer la función globalmente
-window.initializeMap = initializeMap;
+let mapPageInstance = null;
+
+window.initMapPage = () => {
+    console.log('Inicializando nueva instancia de MapPage');
+    if (!mapPageInstance) {
+        mapPageInstance = new MapPage();
+    }
+};
+
+window.cleanupMapPage = () => {
+    console.log('Limpiando instancia de MapPage');
+    if (mapPageInstance) {
+        mapPageInstance.cleanup();
+        mapPageInstance = null;
+    }
+};
+
+if (document.readyState === 'complete' && window.location.pathname === '/mapa') {
+    window.initMapPage();
+} else {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.location.pathname === '/mapa') {
+            window.initMapPage();
+        }
+    });
+}
+
+
+
+export default MapPage;

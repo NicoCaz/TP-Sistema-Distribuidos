@@ -1,5 +1,64 @@
-<div class="page-container align-center">
-    <h1>Mapa con Leaflet</h1>
-    <div id="map" style="height: 400px; width: 100%;"></div>
-    </div>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Mapa de Control</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        /* styles.css */
+        .custom-div-icon {
+            background: transparent;
+            border: none;
+        }
+
+        .marker-pin {
+            width: 30px;
+            height: 30px;
+            border-radius: 50% 50% 50% 0;
+            background: #c30b82;
+            position: absolute;
+            transform: rotate(-45deg);
+            left: 50%;
+            top: 50%;
+            margin: -15px 0 0 -15px;
+        }
+
+        .animal-pin {
+            background: #00796b;
+        }
+
+        .custom-div-icon i {
+            position: absolute;
+            width: 22px;
+            font-size: 22px;
+            left: 0;
+            right: 0;
+            margin: 10px auto;
+            text-align: center;
+            color: white;
+            transform: rotate(45deg);
+        }
+
+        .popup-content {
+            padding: 10px;
+        }
+
+        .popup-content h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .popup-content p {
+            margin: 5px 0;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="/js/pages/mapa.js"></script>
+</body>
     
+    </html>
