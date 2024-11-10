@@ -106,13 +106,11 @@ class MapPage {
     }
 
     startAnimalPositionsUpdate() {
-        // Actualizar inmediatamente
         this.updateAnimalPositions();
         
-        // Actualizar cada 30 segundos
         setInterval(() => {
             this.updateAnimalPositions();
-        }, 30000);
+        }, 1000);
     }
 
     cleanup() {
