@@ -1,178 +1,286 @@
-// Función para obtener las vacas que se ejecutará inmediatamente
-async function initializeApp() {
-    try {
-        const response = await fetch('http://localhost:3000/animales');
-        if (!response.ok) {
-            throw new Error(`Error en la respuesta de la API: ${response.statusText}`);
-        }
-        const data = await response.json();
-        if (data.vacas && Array.isArray(data.vacas)) {
-            console.log('Lista inicial de vacas:', data.vacas);
-            displayCows(data.vacas);
-        } else {
-            console.error('La respuesta no contiene una lista de vacas:', data);
-            document.getElementById('cowList').innerHTML = '<li>Error al cargar la lista de vacas</li>';
-        }
-    } catch (error) {
-        console.error('Error al cargar las vacas:', error);
-        document.getElementById('cowList').innerHTML = '<li>Error al cargar la lista de vacas</li>';
-    }
-}
-
-// Ejecutar la función inmediatamente cuando se carga el script
-initializeApp();
-
+// Esperar a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM cargado - Verificando elementos...');
+    
+    // Lista de IDs requeridos
+    const requiredElements = [
+        'cowForm',
+        'cowList',
+        'submitBtn',
+        'cancelEdit',
+        'refreshDevices',
+        'deviceSelect',
+        'cowName',
+        'description'
+    ];
+
+    // Verificar cada elemento e informar cuáles faltan
+    const missingElements = requiredElements.filter(id => {
+        const element = document.getElementById(id);
+        console.log(`Buscando elemento '${id}':`, !!element);
+        return !element;
+    });
+
+    if (missingElements.length > 0) {
+        console.error('Elementos faltantes:', missingElements);
+        console.error('Por favor, verifica que estos IDs existan en el HTML');
+        return;
+    }
+
+    console.log('Todos los elementos necesarios fueron encontrados');
+
+    // Obtener referencias a los elementos
     const cowForm = document.getElementById('cowForm');
     const cowList = document.getElementById('cowList');
     const submitBtn = document.getElementById('submitBtn');
     const cancelEditBtn = document.getElementById('cancelEdit');
-    let editingTag = null;
+    const refreshDevicesBtn = document.getElementById('refreshDevices');
+    const deviceSelect = document.getElementById('deviceSelect');
+    const cowName = document.getElementById('cowName');
+    const description = document.getElementById('description');
 
-    // Al enviar el formulario, agrega o actualiza una vaca
-    cowForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const cowName = document.getElementById('cowName').value;
-        const cowTag = document.getElementById('cowTag').value;
-        
-        const newCow = { nombre: cowName, tag: cowTag };
-        
-        if (editingTag) {
-            updateCow(editingTag, newCow);
-        } else {
-            addCow(newCow);
-        }
-    });
+    let editingId = null;
 
-    // Cancelar edición
-    cancelEditBtn.addEventListener('click', () => {
-        resetForm();
-    });
-
-    // Agregar nueva vaca
-    async function addCow(cow) {
+    // Función para obtener los animales
+    async function fetchAnimals() {
         try {
-            const response = await fetch('http://localhost:3000/animales', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(cow)
-            });
+            console.log('Intentando obtener lista de animales...');
+            const response = await fetch('http://localhost:3000/API/animals');
+            console.log('Respuesta del servidor:', response);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message);
-            }
-
-            await response.json();
-            await fetchCows();
-            resetForm();
-        } catch (error) {
-            console.error('Error:', error);
-            alert(error.message);
-        }
-    }
-
-    // Actualizar vaca existente
-    async function updateCow(originalTag, updatedCow) {
-        try {
-            const response = await fetch(`http://localhost:3000/animales/${originalTag}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedCow)
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al actualizar la vaca');
-            }
-
-            await response.json();
-            await fetchCows();
-            resetForm();
-        } catch (error) {
-            console.error('Error:', error);
-            alert(error.message);
-        }
-    }
-
-    // Obtener la lista de vacas
-    async function fetchCows() {
-        try {
-            const response = await fetch('http://localhost:3000/animales');
             if (!response.ok) {
                 throw new Error(`Error en la respuesta de la API: ${response.statusText}`);
             }
+
             const data = await response.json();
-            if (data.vacas && Array.isArray(data.vacas)) {
-                displayCows(data.vacas);
+            console.log('Datos recibidos:', data);
+
+            if (data.data && Array.isArray(data.data.animals)) {
+                displayAnimals(data.data.animals);
             } else {
-                console.error('La respuesta no contiene una lista de vacas:', data);
-                cowList.innerHTML = '<li>Error al cargar la lista de vacas</li>';
+                console.error('Formato de datos inválido:', data);
+                cowList.innerHTML = '<li>Error en el formato de datos</li>';
             }
         } catch (error) {
-            console.error('Error en obtener vacas:', error);
-            cowList.innerHTML = '<li>Error al cargar la lista de vacas</li>';
+            console.error('Error al obtener animales:', error);
+            cowList.innerHTML = `<li>Error: ${error.message}</li>`;
         }
     }
 
-    // Mostrar la lista de vacas con botones de editar y eliminar
-    function displayCows(cows) {
+    // Función para mostrar la lista de animales
+    function displayAnimals(animals) {
+        console.log('Mostrando', animals.length, 'animales');
         cowList.innerHTML = '';
-        cows.forEach(cow => {
+        
+        animals.forEach(animal => {
+            console.log('Renderizando animal:', animal);
             const li = document.createElement('li');
-            li.textContent = `Nombre: ${cow.nombre}, Tag: ${cow.tag}`;
             
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Eliminar';
-            deleteButton.addEventListener('click', () => deleteCow(cow.tag));
+            // Información del animal
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'animal-info';
+            infoDiv.innerHTML = `
+                <strong>Nombre:</strong> ${animal.name}
+                <br>
+                <strong>ID:</strong> ${animal.id}
+                ${animal.description ? `<br><strong>Descripción:</strong> ${animal.description}` : ''}
+            `;
+            
+            // Botones de acción
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'button-group';
             
             const editButton = document.createElement('button');
             editButton.textContent = 'Editar';
-            editButton.addEventListener('click', () => startEditing(cow));
+            editButton.className = 'edit-btn';
+            editButton.onclick = () => startEditing(animal);
             
-            li.appendChild(editButton);
-            li.appendChild(deleteButton);
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Eliminar';
+            deleteButton.className = 'delete-btn';
+            deleteButton.onclick = () => deleteAnimal(animal.id);
+            
+            actionsDiv.appendChild(editButton);
+            actionsDiv.appendChild(deleteButton);
+            
+            li.appendChild(infoDiv);
+            li.appendChild(actionsDiv);
             cowList.appendChild(li);
         });
     }
 
-    // Iniciar edición de una vaca
-    function startEditing(cow) {
-        editingTag = cow.tag;
-        document.getElementById('cowName').value = cow.nombre;
-        document.getElementById('cowTag').value = cow.tag;
-        submitBtn.textContent = 'Actualizar Vaca';
-        cancelEditBtn.classList.remove('hidden');
-        document.getElementById('cowTag').disabled = true;
-    }
-
-    // Resetear el formulario al estado inicial
-    function resetForm() {
-        editingTag = null;
-        cowForm.reset();
-        submitBtn.textContent = 'Agregar Vaca';
-        cancelEditBtn.classList.add('hidden');
-        document.getElementById('cowTag').disabled = false;
-    }
-
-    // Eliminar vaca
-    async function deleteCow(cowTag) {
+    // Función para cargar dispositivos disponibles
+    async function loadAvailableDevices() {
+        console.log('Cargando dispositivos disponibles...');
         try {
-            const response = await fetch(`http://localhost:3000/animales/${cowTag}`, {
-                method: 'DELETE'
-            });
-            
+            const response = await fetch('http://localhost:3000/API/availableDevices');
+            console.log('Respuesta de dispositivos:', response);
+
             if (!response.ok) {
-                throw new Error('Error al eliminar la vaca');
+                throw new Error('Error al obtener dispositivos');
             }
+
+            const data = await response.json();
+            console.log('Dispositivos recibidos:', data);
+
+            deviceSelect.innerHTML = '<option value="">Seleccione un dispositivo</option>';
             
-            await fetchCows();
+            if (Array.isArray(data.devices)) {
+                data.devices.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device;
+                    option.textContent = device;
+                    deviceSelect.appendChild(option);
+                });
+                console.log(`${data.devices.length} dispositivos cargados en el select`);
+            }
         } catch (error) {
-            console.error('Error:', error);
-            alert('Error al eliminar la vaca');
+            console.error('Error al cargar dispositivos:', error);
+            alert('Error al cargar dispositivos disponibles');
         }
     }
+
+    // Función para agregar un nuevo animal
+    async function addAnimal(animal) {
+        console.log('Intentando agregar animal:', animal);
+        try {
+            const response = await fetch('http://localhost:3000/API/animals', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(animal)
+            });
+            console.log('Respuesta del servidor:', response);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error al crear animal');
+            }
+
+            console.log('Animal agregado exitosamente');
+            await fetchAnimals();
+            resetForm();
+        } catch (error) {
+            console.error('Error al crear animal:', error);
+            alert(error.message);
+        }
+    }
+
+    // Función para actualizar un animal existente
+    async function updateAnimal(id, updatedAnimal) {
+        console.log('Actualizando animal:', { id, updatedAnimal });
+        try {
+            const response = await fetch(`http://localhost:3000/API/animals/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: updatedAnimal.name,
+                    description: updatedAnimal.description
+                })
+            });
+            console.log('Respuesta del servidor:', response);
+
+            if (!response.ok) {
+                throw new Error('Error al actualizar el animal');
+            }
+
+            console.log('Animal actualizado exitosamente');
+            await fetchAnimals();
+            resetForm();
+        } catch (error) {
+            console.error('Error al actualizar:', error);
+            alert(error.message);
+        }
+    }
+
+    // Función para eliminar un animal
+    async function deleteAnimal(id) {
+        console.log('Intentando eliminar animal:', id);
+        if (!confirm('¿Está seguro de que desea eliminar este animal?')) {
+            console.log('Eliminación cancelada por el usuario');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3000/API/animals/${id}`, {
+                method: 'DELETE'
+            });
+            console.log('Respuesta del servidor:', response);
+
+            if (!response.ok) {
+                throw new Error('Error al eliminar el animal');
+            }
+
+            console.log('Animal eliminado exitosamente');
+            await fetchAnimals();
+        } catch (error) {
+            console.error('Error al eliminar:', error);
+            alert('Error al eliminar el animal');
+        }
+    }
+
+    // Función para iniciar la edición de un animal
+    function startEditing(animal) {
+        console.log('Iniciando edición del animal:', animal);
+        editingId = animal.id;
+        cowName.value = animal.name;
+        description.value = animal.description || '';
+        deviceSelect.value = animal.id;
+        deviceSelect.disabled = true;
+        submitBtn.textContent = 'Actualizar Animal';
+        cancelEditBtn.classList.remove('hidden');
+    }
+
+    // Función para resetear el formulario
+    function resetForm() {
+        console.log('Reseteando formulario');
+        editingId = null;
+        cowForm.reset();
+        deviceSelect.disabled = false;
+        submitBtn.textContent = 'Agregar Animal';
+        cancelEditBtn.classList.add('hidden');
+    }
+
+    // Event Listeners
+    cowForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        console.log('Formulario enviado');
+
+        const formData = {
+            name: cowName.value,
+            id: deviceSelect.value,
+            description: description.value
+        };
+        console.log('Datos del formulario:', formData);
+
+        if (!formData.id) {
+            console.warn('No se seleccionó dispositivo');
+            alert('Por favor seleccione un dispositivo');
+            return;
+        }
+
+        if (editingId) {
+            await updateAnimal(editingId, formData);
+        } else {
+            await addAnimal(formData);
+        }
+    });
+
+    refreshDevicesBtn.addEventListener('click', () => {
+        console.log('Actualizando lista de dispositivos...');
+        loadAvailableDevices();
+    });
+
+    cancelEditBtn.addEventListener('click', () => {
+        console.log('Cancelando edición...');
+        resetForm();
+    });
+
+    // Inicializar la aplicación
+    console.log('Inicializando aplicación...');
+    fetchAnimals();
+    loadAvailableDevices();
 });

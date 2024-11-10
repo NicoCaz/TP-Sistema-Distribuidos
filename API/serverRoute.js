@@ -3,7 +3,6 @@ const rutasAnimales = require('./routes/animals.js');
 const rutasCheckpoint = require('./routes/checkpoints.js');
 const rutasLogin = require('./routes/login.js');
 const rutasRefresh = require('./routes/refresh.js');
-const rutasVacas = require('./routes/vaca.js');
 const rutasAvailableDevices = require('./routes/availableDevices.js');
 const url = require('url'); 
 const fs = require('fs');
