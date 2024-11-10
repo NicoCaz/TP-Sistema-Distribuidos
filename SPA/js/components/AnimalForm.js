@@ -18,6 +18,7 @@ export class AnimalForm {
     }
 
     setupListeners() {
+        console.log('Configurando listeners del formulario');
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleSubmit();
@@ -29,54 +30,79 @@ export class AnimalForm {
         });
 
         this.elements.refreshBtn.addEventListener('click', () => {
+            console.log('Solicitando actualización de dispositivos');
             this.onRefreshDevices?.();
         });
     }
 
-    async handleSubmit() {
+    setDevices(devices) {
+        console.log('Configurando dispositivos en el formulario:', devices);
+        const deviceSelect = this.elements.device;
+        
+        // Guardar el valor actual antes de limpiar
+        const currentValue = deviceSelect.value;
+        
+        // Limpiar opciones existentes
+        deviceSelect.innerHTML = '<option value="">Seleccione un dispositivo</option>';
+        
+        // Agregar nuevos dispositivos
+        if (Array.isArray(devices) && devices.length > 0) {
+            devices.forEach(device => {
+                const option = document.createElement('option');
+                option.value = device;
+                option.textContent = device;
+                deviceSelect.appendChild(option);
+            });
+            console.log(`Se agregaron ${devices.length} dispositivos al select`);
+
+            // Restaurar el valor seleccionado si existía
+            if (currentValue) {
+                deviceSelect.value = currentValue;
+            }
+        } else {
+            console.warn('No se recibieron dispositivos para agregar al formulario');
+        }
+    }
+
+    startEditing(animal) {
+        console.log('Iniciando edición del animal:', animal);
+        this.editingId = animal.id;
+        this.elements.name.value = animal.name;
+        this.elements.description.value = animal.description || '';
+        this.elements.device.value = animal.id;
+        // Ya no deshabilitamos el select de dispositivos
+        this.elements.submitBtn.textContent = 'Actualizar Animal';
+        this.elements.cancelBtn.classList.remove('hidden');
+    }
+
+    handleSubmit() {
         const formData = {
             name: this.elements.name.value,
             id: this.elements.device.value,
             description: this.elements.description.value
         };
 
+        console.log('Datos del formulario a enviar:', formData);
+
         if (!formData.id) {
+            console.warn('No se seleccionó dispositivo');
             alert('Por favor seleccione un dispositivo');
             return;
         }
 
-        await this.onSubmit(formData, this.editingId);
-    }
-
-    setDevices(devices) {
-        this.elements.device.innerHTML = '<option value="">Seleccione un dispositivo</option>';
-        devices.forEach(device => {
-            const option = document.createElement('option');
-            option.value = device;
-            option.textContent = device;
-            this.elements.device.appendChild(option);
-        });
-    }
-
-    startEditing(animal) {
-        this.editingId = animal.id;
-        this.elements.name.value = animal.name;
-        this.elements.description.value = animal.description || '';
-        this.elements.device.value = animal.id;
-        this.elements.device.disabled = true;
-        this.elements.submitBtn.textContent = 'Actualizar Animal';
-        this.elements.cancelBtn.classList.remove('hidden');
+        this.onSubmit(formData, this.editingId);
     }
 
     reset() {
+        console.log('Reseteando formulario');
         this.editingId = null;
         this.form.reset();
-        this.elements.device.disabled = false;
         this.elements.submitBtn.textContent = 'Agregar Animal';
         this.elements.cancelBtn.classList.add('hidden');
     }
 
     setOnRefreshDevices(callback) {
+        console.log('Configurando callback de refresh devices');
         this.onRefreshDevices = callback;
     }
 }

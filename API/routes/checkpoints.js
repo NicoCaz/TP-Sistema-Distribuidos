@@ -29,7 +29,7 @@ const routeCheck = (req, res) => {
       });
     
     }else if (req.url === '/api/checkpoints' && req.method === 'DELETE') {
-      const id = req.url.split('/')[2];//ver como manejar la obtencion del id desde spa
+      const id = req.url.split('/')[3];//ver como manejar la obtencion del id desde spa
       const initialLength = checkpoints.checkpoints.length;
       const updatedCheckpoints = checkpoints.checkpoints.filter(checkpoint => checkpoint.id !== id);
       if (updatedCheckpoints.length < initialLength) {
@@ -43,7 +43,7 @@ const routeCheck = (req, res) => {
       }
     
     }else if (req.url === '/api/checkpoints' && req.method === 'PATCH') {
-      const id = req.url.split('/')[2];
+      const id = req.url.split('/')[3];
       let body = '';
       req.on('data', chunk => {
         body += chunk.toString();

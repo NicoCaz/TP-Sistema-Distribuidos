@@ -1,30 +1,48 @@
-// router.js
 export class Router {
     constructor() {
         this.routes = {
             '/': {
                 template: '/pages/index.html',
+                cleanup: () => this.cleanupAnimalsPage()
             },
             '/about': {
                 template: '/pages/about.html',
+                cleanup: () => this.cleanupAnimalsPage()
             },
             '/animales': {
                 template: '/pages/animales.html',
-                script: '/js/pages/animales.js'
+                script: '/js/pages/animales.js',
+                init: () => {
+                    if (window.initAnimalsPage) {
+                        window.initAnimalsPage();
+                    }
+                },
+                cleanup: () => this.cleanupAnimalsPage()
             },
             '/mapa': {
                 template: '/pages/mapa.html',
-                script: '/js/pages/mapa.js'
+                script: '/js/pages/mapa.js',
+                cleanup: () => this.cleanupAnimalsPage()
             }
         };
 
         this.currentScript = null;
+        this.currentPath = null;
         this.init();
+    }
+
+    cleanupAnimalsPage() {
+        if (window.cleanupAnimalsPage) {
+            window.cleanupAnimalsPage();
+        }
     }
 
     init() {
         window.addEventListener('popstate', () => this.route());
-        document.addEventListener('DOMContentLoaded', () => this.route());
+        window.addEventListener('load', () => {
+            const path = window.location.pathname || '/';
+            this.route(path);
+        });
         this.setupNavigation();
     }
 
@@ -37,8 +55,20 @@ export class Router {
     handleClick(event) {
         event.preventDefault();
         const path = event.target.getAttribute('href');
+        this.navigateTo(path);
+    }
+
+    navigateTo(path) {
+        if (this.currentPath === path) return;
+        
+        // Ejecutar limpieza de la ruta actual si existe
+        if (this.currentPath && this.routes[this.currentPath]?.cleanup) {
+            this.routes[this.currentPath].cleanup();
+        }
+
         window.history.pushState({}, '', path);
-        this.route();
+        this.currentPath = path;
+        this.route(path);
     }
 
     async loadContent(url) {
@@ -53,51 +83,58 @@ export class Router {
     }
 
     async loadScript(scriptPath) {
-        // Remover script anterior si existe
+        if (!scriptPath) return true;
+
         if (this.currentScript) {
             document.body.removeChild(this.currentScript);
             this.currentScript = null;
         }
 
-        if (scriptPath) {
-            // Crear y cargar nuevo script
+        return new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = scriptPath;
             script.type = 'module';
+            script.src = scriptPath;
             
-            // Promesa para manejar la carga del script
-            const loadPromise = new Promise((resolve, reject) => {
-                script.onload = resolve;
-                script.onerror = reject;
-            });
+            script.onload = () => {
+                this.currentScript = script;
+                resolve(true);
+            };
+            
+            script.onerror = () => {
+                reject(new Error(`Error loading script: ${scriptPath}`));
+            };
 
-            this.currentScript = script;
             document.body.appendChild(script);
-
-            try {
-                await loadPromise;
-                return true;
-            } catch (error) {
-                console.error('Error cargando script:', error);
-                return false;
-            }
-        }
+        });
     }
 
-    async route() {
-        const path = window.location.pathname;
+    async route(path = window.location.pathname) {
+        console.log('Routing to:', path);
+        
+        // Ejecutar limpieza de la ruta actual si existe
+        if (this.currentPath && this.routes[this.currentPath]?.cleanup) {
+            this.routes[this.currentPath].cleanup();
+        }
+
         const route = this.routes[path] || this.routes['/'];
+        this.currentPath = path;
 
-        // Cargar el contenido HTML
-        const content = await this.loadContent(route.template);
-        const mainPage = document.getElementById('main-page');
-        mainPage.innerHTML = content;
+        try {
+            const content = await this.loadContent(route.template);
+            const mainPage = document.getElementById('main-page');
+            mainPage.innerHTML = content;
 
-        // Cargar el script asociado
-        await this.loadScript(route.script);
+            if (route.script) {
+                await this.loadScript(route.script);
+                if (route.init) {
+                    route.init();
+                }
+            }
 
-        // Actualizar navegación activa
-        this.updateActiveNav(path);
+            this.updateActiveNav(path);
+        } catch (error) {
+            console.error('Error en el enrutamiento:', error);
+        }
     }
 
     updateActiveNav(currentPath) {

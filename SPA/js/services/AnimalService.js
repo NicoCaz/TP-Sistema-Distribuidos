@@ -1,7 +1,27 @@
 export class AnimalService {
     constructor() {
         this.baseUrl = 'http://localhost:3000/api';
+        this.mockDevices = [
+            'TEST_001',
+            'TEST_002',
+            'TEST_003',
+            'TEST_004',
+            'TEST_005'
+        ];
     }
+    timeoutPromise(promise, timeout = 2000) {
+        return Promise.race([
+            promise,
+            new Promise((_, reject) => {
+                setTimeout(() => {
+                    reject(new Error('Timeout - No se recibió respuesta a tiempo'));
+                }, timeout);
+            })
+        ]);
+    }
+
+
+
 
     async getAnimals() {
         try {
@@ -11,7 +31,6 @@ export class AnimalService {
             }
             const data = await response.json();
             
-            // Verificar la estructura de la respuesta y manejar diferentes casos
             if (data.data && data.data.animals) {
                 return data.data.animals;
             } else if (Array.isArray(data)) {
@@ -30,15 +49,36 @@ export class AnimalService {
 
     async getAvailableDevices() {
         try {
-            const response = await fetch(`${this.baseUrl}/availableDevices`);
+            console.log('Intentando obtener dispositivos del servidor...');
+            
+            // Crear la promesa de fetch con timeout
+            const fetchPromise = fetch(`${this.baseUrl}/availableDevices`);
+            const response = await this.timeoutPromise(fetchPromise);
+            
+            console.log('Respuesta del servidor:', response.status);
             if (!response.ok) {
-                throw new Error('Error al obtener dispositivos');
+                console.log('Servidor no disponible, usando dispositivos de prueba');
+                return this.mockDevices;
             }
+
             const data = await response.json();
-            return Array.isArray(data.devices) ? data.devices : [];
+            console.log('Datos recibidos del servidor:', data);
+
+            const devices = Array.isArray(data.devices) ? data.devices : [];
+            if (devices.length === 0) {
+                console.log('No se encontraron dispositivos en el servidor, usando dispositivos de prueba');
+                return this.mockDevices;
+            }
+
+            return devices;
+
         } catch (error) {
-            console.error('Error en getAvailableDevices:', error);
-            throw new Error('Error al obtener los dispositivos disponibles');
+            if (error.message.includes('Timeout')) {
+                console.warn('Timeout al esperar respuesta del servidor, usando dispositivos de prueba');
+            } else {
+                console.warn('Error al conectar con el servidor:', error);
+            }
+            return this.mockDevices;
         }
     }
 
@@ -66,21 +106,24 @@ export class AnimalService {
 
     async updateAnimal(id, animal) {
         try {
-            const response = await fetch(`${this.baseUrl}/animals/${id}`, {
+            const fetchPromise = fetch(`${this.baseUrl}/animals/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     name: animal.name,
-                    description: animal.description
+                    description: animal.description,
+                    id: animal.id  // Agregamos el ID del dispositivo para permitir su actualización
                 })
             });
-
+    
+            const response = await this.timeoutPromise(fetchPromise);
+    
             if (!response.ok) {
                 throw new Error('Error al actualizar el animal');
             }
-
+    
             return await response.json();
         } catch (error) {
             console.error('Error en updateAnimal:', error);
