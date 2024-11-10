@@ -4,6 +4,7 @@
 <head>
     <title>Mapa de Control</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css">
     <style>
         /* styles.css */
         .custom-div-icon {
@@ -52,6 +53,18 @@
             margin: 5px 0;
             color: #666;
         }
+
+        #map {
+    height: 100vh; /* o un valor específico como 500px */
+    width: 100%;
+}
+
+/* También asegúrate que el html y body ocupen todo el espacio disponible */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
     </style>
 </head>
 
