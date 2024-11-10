@@ -83,17 +83,14 @@ class AnimalsPage {
 
     cleanup() {
         console.log('Limpiando instancia de AnimalsPage');
-        // Limpiar listeners y estados si es necesario
         this.animalForm = null;
         this.animalList = null;
         this.animalService = null;
     }
 }
 
-// Variable global para mantener la instancia
 let animalsPageInstance = null;
 
-// Función de inicialización global
 window.initAnimalsPage = () => {
     console.log('Inicializando nueva instancia de AnimalsPage');
     if (!animalsPageInstance) {
@@ -104,7 +101,6 @@ window.initAnimalsPage = () => {
     }
 };
 
-// Función de limpieza global
 window.cleanupAnimalsPage = () => {
     console.log('Ejecutando limpieza global de AnimalsPage');
     if (animalsPageInstance) {

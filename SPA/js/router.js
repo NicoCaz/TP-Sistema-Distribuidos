@@ -6,6 +6,7 @@ export class Router {
                 cleanup: () => {
                     this.cleanupAnimalsPage();
                     this.cleanupAboutPage();
+                    this.cleanupPointsPage();
                 }
                 
             },
@@ -20,6 +21,7 @@ export class Router {
                 cleanup: () => {
                     this.cleanupAnimalsPage();
                     this.cleanupAboutPage();
+                    this.cleanupPointsPage();
                 }
             },
             '/animales': {
@@ -33,6 +35,7 @@ export class Router {
                 cleanup: () => {
                     this.cleanupAnimalsPage();
                     this.cleanupAboutPage();
+                    this.cleanupPointsPage();
                 }
             },
             '/mapa': {
@@ -41,8 +44,23 @@ export class Router {
                 cleanup: () => {
                     this.cleanupAnimalsPage();
                     this.cleanupAboutPage();
+                    this.cleanupPointsPage();
                 }
-            }
+            },
+            '/puntos': {
+                template: '/pages/points.html',
+                script: '/js/pages/points.js',
+                init: () => {
+                    if (window.initPointsPage) {
+                        window.initPointsPage();
+                    }
+                },
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
+                    this.cleanupPointsPage();
+                }
+            },
         };
 
         this.currentScript = null;
@@ -60,6 +78,14 @@ export class Router {
             window.cleanupAboutPage();
         }
     }
+    cleanupPointsPage() {
+        if (window.cleanupPointPage) {
+            window.cleanupPointsPage();
+        }
+    }
+
+
+
     cleanupCurrentPage() {
         const currentRoute = this.routes[this.currentPath];
         if (currentRoute?.cleanup) {
