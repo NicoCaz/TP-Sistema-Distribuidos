@@ -3,11 +3,24 @@ export class Router {
         this.routes = {
             '/': {
                 template: '/pages/index.html',
-                cleanup: () => this.cleanupAnimalsPage()
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
+                }
+                
             },
             '/about': {
                 template: '/pages/about.html',
-                cleanup: () => this.cleanupAnimalsPage()
+                script: '/js/pages/about.js',
+                init: () => {
+                    if (window.initAboutPage) {
+                        window.initAboutPage();
+                    }
+                },
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
+                }
             },
             '/animales': {
                 template: '/pages/animales.html',
@@ -17,12 +30,18 @@ export class Router {
                         window.initAnimalsPage();
                     }
                 },
-                cleanup: () => this.cleanupAnimalsPage()
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
+                }
             },
             '/mapa': {
                 template: '/pages/mapa.html',
                 script: '/js/pages/mapa.js',
-                cleanup: () => this.cleanupAnimalsPage()
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
+                }
             }
         };
 
@@ -34,6 +53,17 @@ export class Router {
     cleanupAnimalsPage() {
         if (window.cleanupAnimalsPage) {
             window.cleanupAnimalsPage();
+        }
+    }
+    cleanupAboutPage() {
+        if (window.cleanupAboutPage) {
+            window.cleanupAboutPage();
+        }
+    }
+    cleanupCurrentPage() {
+        const currentRoute = this.routes[this.currentPath];
+        if (currentRoute?.cleanup) {
+            currentRoute.cleanup();
         }
     }
 
