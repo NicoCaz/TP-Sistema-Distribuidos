@@ -2,7 +2,7 @@ const auxFunc = require('../helpers/auxFunctionLog.js');
 const jwt = require('jsonwebtoken');
 
 const routeLogin = (req, res) => {
-  if (req.url === '/login' && req.method === 'POST') {
+  if (req.url === '/api/login' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();

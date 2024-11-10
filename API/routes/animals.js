@@ -19,7 +19,7 @@ const routeAnimals = (req, res) => {
   console.log(`\n🔄 Nueva solicitud: ${req.method} ${req.url}`);
   const animals = getAnimals();
 
-  if (req.url === '/animals' && req.method === 'GET') {
+  if (req.url === '/api/animals' && req.method === 'GET') {
     console.log('📤 Enviando lista de todos los animales');
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(animals));
@@ -41,7 +41,7 @@ const routeAnimals = (req, res) => {
       res.end(JSON.stringify(newAnimal));
     });
 
-  } else if (req.url.startsWith('/animals/') && req.method === 'DELETE') {
+  } else if (req.url.startsWith('/api/animals/') && req.method === 'DELETE') {
     const id = req.url.split('/')[2];
     console.log('🗑️ Intentando eliminar animal con ID:', id);
     const initialLength = animals.length;
@@ -59,7 +59,7 @@ const routeAnimals = (req, res) => {
       res.end(JSON.stringify({ message: `Animal con id ${id} no encontrado` }));
     }
 
-  } else if (req.url.startsWith('/animals/') && req.method === 'PATCH') {
+  } else if (req.url.startsWith('/api/animals/') && req.method === 'PATCH') {
     const id = req.url.split('/')[2];
     console.log('🔄 Intentando actualizar animal con ID:', id);
     let body = '';

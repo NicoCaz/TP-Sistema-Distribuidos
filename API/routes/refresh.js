@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const routeRefresh = (req, res) => {
-  if (req.url === '/refresh' && req.method === 'POST') {
+  if (req.url === '/api/refresh' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();
