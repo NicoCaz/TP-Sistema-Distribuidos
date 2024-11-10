@@ -33,7 +33,6 @@ class AnimalsPage {
             this.animalList.render(animals);
         } catch (error) {
             console.error('Error al cargar animales:', error);
-            this.animalList.showError(error.message);
         }
     }
 
@@ -44,7 +43,7 @@ class AnimalsPage {
             this.animalForm.setDevices(devices);
         } catch (error) {
             console.error('Error al cargar dispositivos:', error);
-            alert('Error al cargar dispositivos disponibles');
+           
         }
     }
 
