@@ -10,7 +10,7 @@ const filePath = path.join(__dirname,'..', 'BBDD', 'checkpoints.json');
 const routeCheck = (req, res) => {
     const checkpoints = auxFunc.getCheckpoints(filePath);
 
-    if (req.url === '/checkpoints' && req.method === 'GET') {
+    if (req.url === '/api/checkpoints' && req.method === 'GET') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(checkpoints));
 
@@ -28,8 +28,8 @@ const routeCheck = (req, res) => {
         res.end(JSON.stringify(newCheckpoint));
       });
     
-    }else if (req.url === '/checkpoints' && req.method === 'DELETE') {
-      const id = req.url.split('/')[2];//ver como manejar la obtencion del id desde spa
+    }else if (req.url === '/api/checkpoints' && req.method === 'DELETE') {
+      const id = req.url.split('/')[3];//ver como manejar la obtencion del id desde spa
       const initialLength = checkpoints.checkpoints.length;
       const updatedCheckpoints = checkpoints.checkpoints.filter(checkpoint => checkpoint.id !== id);
       if (updatedCheckpoints.length < initialLength) {
@@ -42,8 +42,8 @@ const routeCheck = (req, res) => {
         res.end(JSON.stringify({ message: `Checkpoint con id ${id} no encontrado` }));
       }
     
-    }else if (req.url === '/checkpoints' && req.method === 'PATCH') {
-      const id = req.url.split('/')[2];
+    }else if (req.url === '/api/checkpoints' && req.method === 'PATCH') {
+      const id = req.url.split('/')[3];
       let body = '';
       req.on('data', chunk => {
         body += chunk.toString();

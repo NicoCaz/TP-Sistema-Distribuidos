@@ -11,21 +11,23 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+        crossorigin=""></script>
 </head>
 <body>
     <div id="root">
         <nav id="main-nav" class="sidebar">
-            <a href="/" onclick="route(event)">Home</a>
-            <a href="/animales" onclick="route(event)">Animales</a>
-            <a href="/about" onclick="route(event)">About</a>
-            <a href="/mapa" onclick="route(event)">Mapa</a>
+            <a href="/">Home</a>
+            <a href="/animales">Animales</a>
+            <a href="/about">About</a>
+            <a href="/mapa">Mapa</a>
         </nav>
         <div id="main-page"></div>
     </div>
     <!-- Scripts de la aplicación -->
-    <script src="/js/router.js"></script>
-    <script src="/js/mapa.js"></script>
-    <script src="/js/animales.js"></script>
+    <script type="module">
+        import { Router } from '/js/router.js';
+        new Router();
+    </script>
 </body>
 </html>

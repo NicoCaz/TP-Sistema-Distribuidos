@@ -1,57 +1,176 @@
-const routes = {
-    '/': '/pages/index.html',
-    '/about': '/pages/about.html',
-    '/animales': '/pages/animales.html',
-    '/mapa': '/pages/mapa.html'
-};
-
-async function loadContent(url) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const content = await response.text();
-        
-        // Limpiar y establecer el nuevo contenido
-        const mainPage = document.getElementById('main-page');
-        mainPage.innerHTML = content;
-
-        // Si estamos en la página del mapa, inicializar después de un breve retraso
-        if (window.location.pathname === '/mapa') {
-            console.log('Detectada página de mapa');
-            setTimeout(() => {
-                if (typeof window.initializeMap === 'function') {
-                    console.log('Inicializando mapa');
-                    window.initializeMap();
-                } else {
-                    console.error('Función initializeMap no encontrada');
+export class Router {
+    constructor() {
+        this.routes = {
+            '/': {
+                template: '/pages/index.html',
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
                 }
-            }, 100);
-        }
-    } catch (error) {
-        console.error('Error cargando contenido:', error);
-        document.getElementById('main-page').innerHTML = '<h1>Error 404: Página no encontrada</h1>';
-    }
-}
+                
+            },
+            '/about': {
+                template: '/pages/about.html',
+                script: '/js/pages/about.js',
+                init: () => {
+                    if (window.initAboutPage) {
+                        window.initAboutPage();
+                    }
+                },
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
+                }
+            },
+            '/animales': {
+                template: '/pages/animales.html',
+                script: '/js/pages/animales.js',
+                init: () => {
+                    if (window.initAnimalsPage) {
+                        window.initAnimalsPage();
+                    }
+                },
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
+                }
+            },
+            '/mapa': {
+                template: '/pages/mapa.html',
+                script: '/js/pages/mapa.js',
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
+                }
+            }
+        };
 
-function route(event) {
-    if (event) {
+        this.currentScript = null;
+        this.currentPath = null;
+        this.init();
+    }
+
+    cleanupAnimalsPage() {
+        if (window.cleanupAnimalsPage) {
+            window.cleanupAnimalsPage();
+        }
+    }
+    cleanupAboutPage() {
+        if (window.cleanupAboutPage) {
+            window.cleanupAboutPage();
+        }
+    }
+    cleanupCurrentPage() {
+        const currentRoute = this.routes[this.currentPath];
+        if (currentRoute?.cleanup) {
+            currentRoute.cleanup();
+        }
+    }
+
+    init() {
+        window.addEventListener('popstate', () => this.route());
+        window.addEventListener('load', () => {
+            const path = window.location.pathname || '/';
+            this.route(path);
+        });
+        this.setupNavigation();
+    }
+
+    setupNavigation() {
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', (e) => this.handleClick(e));
+        });
+    }
+
+    handleClick(event) {
         event.preventDefault();
         const path = event.target.getAttribute('href');
-        window.history.pushState({}, '', path);
+        this.navigateTo(path);
     }
-    
-    const path = window.location.pathname;
-    const contentPath = routes[path] || routes['/'];
-    loadContent(contentPath);
+
+    navigateTo(path) {
+        if (this.currentPath === path) return;
+        
+        // Ejecutar limpieza de la ruta actual si existe
+        if (this.currentPath && this.routes[this.currentPath]?.cleanup) {
+            this.routes[this.currentPath].cleanup();
+        }
+
+        window.history.pushState({}, '', path);
+        this.currentPath = path;
+        this.route(path);
+    }
+
+    async loadContent(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.text();
+        } catch (error) {
+            console.error('Error cargando contenido:', error);
+            return '<h1>Error 404: Página no encontrada</h1>';
+        }
+    }
+
+    async loadScript(scriptPath) {
+        if (!scriptPath) return true;
+
+        if (this.currentScript) {
+            document.body.removeChild(this.currentScript);
+            this.currentScript = null;
+        }
+
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = scriptPath;
+            
+            script.onload = () => {
+                this.currentScript = script;
+                resolve(true);
+            };
+            
+            script.onerror = () => {
+                reject(new Error(`Error loading script: ${scriptPath}`));
+            };
+
+            document.body.appendChild(script);
+        });
+    }
+
+    async route(path = window.location.pathname) {
+        console.log('Routing to:', path);
+        
+        // Ejecutar limpieza de la ruta actual si existe
+        if (this.currentPath && this.routes[this.currentPath]?.cleanup) {
+            this.routes[this.currentPath].cleanup();
+        }
+
+        const route = this.routes[path] || this.routes['/'];
+        this.currentPath = path;
+
+        try {
+            const content = await this.loadContent(route.template);
+            const mainPage = document.getElementById('main-page');
+            mainPage.innerHTML = content;
+
+            if (route.script) {
+                await this.loadScript(route.script);
+                if (route.init) {
+                    route.init();
+                }
+            }
+
+            this.updateActiveNav(path);
+        } catch (error) {
+            console.error('Error en el enrutamiento:', error);
+        }
+    }
+
+    updateActiveNav(currentPath) {
+        document.querySelectorAll('nav a').forEach(link => {
+            const href = link.getAttribute('href');
+            link.classList.toggle('active', href === currentPath);
+        });
+    }
 }
-
-window.addEventListener('popstate', () => {
-    route();
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    route();
-});
-
-// Exponer la función route globalmente
-window.route = route;

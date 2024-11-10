@@ -1,19 +1,242 @@
-<div class="page-container align-center">
-    <h1>About</h1>
-    <div>Check Out the Socials</div>
+<div class="page-container">
+    <h1>TP Sistema Distribuidos - Estadísticas</h1>
+    <div id="error-message" class="error-message"></div>
+    <div id="stats-container"></div>
+    <div id="commits-container"></div>
     <hr />
+    <h2>Redes Sociales</h2>
     <div class="socials-container">
-        <a href="https://www.youtube.com/channel/UC6pFfiYWbtNkU-u2ZXUfzZw" class="socials-card" target="_blank">
-            <i class="mdi mdi-youtube"></i>
-            <span>YouTube</span>
-        </a>
-        <a href="https://github.com/mitchwadair" class="socials-card" target="_blank">
+        <a href="https://github.com/NicoCaz/TP-Sistema-Distribuidos" class="socials-card" target="_blank">
             <i class="mdi mdi-github"></i>
             <span>GitHub</span>
         </a>
-        <a href="https://twitter.com/imMtB_" class="socials-card" target="_blank">
-            <i class="mdi mdi-twitter"></i>
-            <span>Twitter</span>
-        </a>
     </div>
 </div>
+<style>
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        color: #1f2937;
+        background-color: #f9fafb;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: #1f2937;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #2563eb;
+    }
+
+    h2 {
+        font-size: 1.8rem;
+        color: #1f2937;
+        margin: 2rem 0 1.5rem;
+        text-align: center;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .stats-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-card i {
+        font-size: 2.5rem;
+        color: #2563eb;
+        margin-bottom: 1rem;
+    }
+
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #1f2937;
+        margin: 0.5rem 0;
+    }
+
+    .stats-label {
+        color: #6b7280;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .recent-commits {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-top: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .recent-commits h2 {
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        text-align: left;
+        border: none;
+    }
+
+    .commit-item {
+        padding: 1.25rem;
+        border-bottom: 1px solid #e5e7eb;
+        transition: background-color 0.2s ease;
+    }
+
+    .commit-item:hover {
+        background-color: #f8fafc;
+    }
+
+    .commit-item:last-child {
+        border-bottom: none;
+    }
+
+    .commit-message {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .commit-message:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+
+    .commit-details {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .commit-author {
+        font-weight: 500;
+        color: #4b5563;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+        display: none;
+        font-weight: 500;
+    }
+
+    hr {
+        margin: 2rem 0;
+        border: none;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .socials-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .socials-card {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 1rem 2rem;
+        background: white;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #1f2937;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .socials-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background: #2563eb;
+        color: white;
+    }
+
+    .socials-card i {
+        font-size: 1.5rem;
+    }
+
+    .loading {
+        text-align: center;
+        color: #6b7280;
+        padding: 2rem;
+        font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        .stats-card {
+            padding: 1.5rem;
+        }
+
+        .stats-number {
+            font-size: 2rem;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stats-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .stats-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .stats-card:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .stats-card:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+</style>

@@ -19,12 +19,12 @@ const routeAnimals = (req, res) => {
   console.log(`\n🔄 Nueva solicitud: ${req.method} ${req.url}`);
   const animals = getAnimals();
 
-  if (req.url === '/animals' && req.method === 'GET') {
+  if (req.url === '/api/animals' && req.method === 'GET') {
     console.log('📤 Enviando lista de todos los animales');
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(animals));
 
-  } else if (req.url === '/animals' && req.method === 'POST') {
+  } else if (req.url === '/api/animals' && req.method === 'POST') {
     console.log('📥 Procesando solicitud POST para nuevo animal');
     let body = '';
     req.on('data', chunk => {
@@ -41,8 +41,8 @@ const routeAnimals = (req, res) => {
       res.end(JSON.stringify(newAnimal));
     });
 
-  } else if (req.url.startsWith('/animals/') && req.method === 'DELETE') {
-    const id = req.url.split('/')[2];
+  } else if (req.url.startsWith('/api/animals/') && req.method === 'DELETE') {
+    const id = req.url.split('/')[3];
     console.log('🗑️ Intentando eliminar animal con ID:', id);
     const initialLength = animals.length;
     const updateListAnimals = animals.filter(animal => animal.id !== id);
@@ -59,8 +59,8 @@ const routeAnimals = (req, res) => {
       res.end(JSON.stringify({ message: `Animal con id ${id} no encontrado` }));
     }
 
-  } else if (req.url.startsWith('/animals/') && req.method === 'PATCH') {
-    const id = req.url.split('/')[2];
+  } else if (req.url.startsWith('/api/animals/') && req.method === 'PATCH') {
+    const id = req.url.split('/')[3];
     console.log('🔄 Intentando actualizar animal con ID:', id);
     let body = '';
     req.on('data', chunk => {
@@ -90,7 +90,7 @@ const routeAnimals = (req, res) => {
         res.end(JSON.stringify({ message: `Animal con id ${id} no encontrado` }));
       }
     });
-  } else if (req.url === '/animals/position' && req.method === 'GET') {
+  } else if (req.url === '/api/animals/position' && req.method === 'GET') {
     console.log('📍 Solicitando posiciones de animales');
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({  }));

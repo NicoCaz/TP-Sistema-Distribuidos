@@ -19,7 +19,7 @@ const server = http.createServer((req, res) => {
 
   // Configurar CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT, POST, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,PATCH, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (method === 'OPTIONS') {
@@ -31,20 +31,17 @@ const server = http.createServer((req, res) => {
   console.log(`Request received: ${method} ${path}`);
 
   // Lógica para verificar cada conjunto de rutas
-  if (req.url.startsWith('/animals')) {
+  if (req.url.startsWith('/api/animals')) {
     rutasAnimales(req, res);
-  } else if (req.url.startsWith('/checkpoints')) {
+  } else if (req.url.startsWith('/api/checkpoints')) {
     rutasCheckpoint(req, res);
-  }  else if (req.url.startsWith('/login')) {
+  }  else if (req.url.startsWith('/api/login')) {
     rutasLogin(req, res);
-  }  else if (req.url.startsWith('/refresh')) {
+  }  else if (req.url.startsWith('/api/refresh')) {
     rutasRefresh(req, res);
-  }  else if (req.url.startsWith('/availableDevices')) {
+  }  else if (req.url.startsWith('/api/availableDevices')) {
     rutasAvailableDevices(req, res);
   }//a modo de ejemplo dejo el de vacas,pero en teoria no existe esa ruta
-  else if (req.url.startsWith('/vacas')) {
-    rutasVacas(req, res);
-  } 
   else {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('404 - Ruta no encontrada');

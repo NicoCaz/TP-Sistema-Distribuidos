@@ -1,148 +1,35 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Animales</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<div class="container">
+    <header>
+        <h1>Gestión de Animales</h1>
+    </header>
 
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .form-container {
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .button-group {
-            margin-top: 15px;
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        #cancelEdit {
-            background-color: #f44336;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        #cowList {
-            list-style: none;
-            padding: 0;
-        }
-
-        #cowList li {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .edit-btn {
-            background-color: #2196F3;
-        }
-
-        .delete-btn {
-            background-color: #f44336;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Gestión de Animales</h1>
-        </header>
-
-        <div class="form-container">
-            <!-- Aseguramos que el ID sea exactamente 'cowForm' -->
-            <form id="cowForm">
-                <!-- Aseguramos que el ID sea exactamente 'cowName' -->
-                <div class="form-group">
-                    <label for="cowName">Nombre:</label>
-                    <input type="text" id="cowName" required>
-                </div>
-                
-                <!-- Aseguramos que el ID sea exactamente 'deviceSelect' -->
-                <div class="form-group">
-                    <label for="deviceSelect">Dispositivo:</label>
-                    <select id="deviceSelect" required>
-                        <option value="">Seleccione un dispositivo</option>
-                    </select>
-                </div>
-                
-                <!-- Aseguramos que el ID sea exactamente 'description' -->
-                <div class="form-group">
-                    <label for="description">Descripción:</label>
-                    <textarea id="description"></textarea>
-                </div>
-                
-                <div class="button-group">
-                    <!-- Aseguramos que los IDs sean exactamente 'submitBtn' y 'cancelEdit' -->
-                    <button type="submit" id="submitBtn">Agregar Animal</button>
-                    <button type="button" id="cancelEdit" class="hidden">Cancelar</button>
-                    <button type="button" id="refreshDevices">Actualizar Dispositivos</button>
+    <div class="form-container">
+        <form id="cowForm">
+            <div class="form-group">
+                <label for="cowName">Nombre:</label>
+                <input type="text" id="cowName" required>
+            </div>
+            <div class="form-group">
+                <label for="deviceSelect">Dispositivo:</label>
+                <select id="deviceSelect" required>
+                    <option value="">Seleccione un dispositivo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="description">Descripción:</label>
+                <textarea id="description"></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" id="submitBtn">Agregar Animal</button>
+                <button type="button" id="cancelEdit" class="hidden">Cancelar</button>
+                <button type="button" id="refreshDevices">Actualizar Dispositivos</button>
                 </div>
                 </form>
                 </div>
 
-        <div>
-            <h2>Lista de Animales</h2>
-            <!-- Aseguramos que el ID sea exactamente 'cowList' -->
-            <ul id="cowList"></ul>
+    <div>
+        <h2>Lista de Animales</h2>
+        <ul id="cowList"></ul>
         </div>
-    </div>
-    
-    <!-- Aseguramos que la ruta al script sea correcta -->
-    <script src="/js/animales.js"></script>
-</body>
-</html>
+        </div>
