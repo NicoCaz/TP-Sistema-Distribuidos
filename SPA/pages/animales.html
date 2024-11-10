@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,9 +8,15 @@
         .form-container {
             margin: 20px 0;
         }
+        .edit-mode {
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
-
 <body>
     <div class="form-container">
         <form id="cowForm">
@@ -19,7 +24,8 @@
             <input type="text" id="cowName" name="cowName" required>
             <label for="cowTag">Tag de la Vaca:</label>
             <input type="text" id="cowTag" name="cowTag" required>
-            <button type="submit">Agregar Vaca</button>
+            <button type="submit" id="submitBtn">Agregar Vaca</button>
+            <button type="button" id="cancelEdit" class="hidden">Cancelar Edición</button>
         </form>
     </div>
     <div>
@@ -28,5 +34,4 @@
     </div>
     <script src="../js/animales.js"></script>
 </body>
-
 </html>
