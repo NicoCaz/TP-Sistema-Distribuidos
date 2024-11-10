@@ -6,14 +6,12 @@ export class PointService {
     async getPoints() {
         try {
             const response = await fetch(`${this.API_URL}/api/checkpoints`);
-            if (!response.ok) {
-                throw new Error('Error al obtener los puntos');
-            }
+            if (!response.ok) throw new Error('Error al obtener los puntos');
             const data = await response.json();
-            return data.checkpoints || [];
+            return data.data.checkpoints; // Extraer del nuevo formato
         } catch (error) {
-            console.error('Error fetching points:', error);
-            throw new Error('No se pudieron cargar los puntos');
+            console.error('Error en getPoints:', error);
+            throw error;
         }
     }
 
@@ -30,15 +28,15 @@ export class PointService {
                 throw new Error('Longitud debe estar entre -180 y 180');
             }
 
-            const response = await fetch(`${this.API_URL}/checkpoints`, {
+            const response = await fetch(`${this.API_URL}/api/checkpoints`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    description: point.description,
-                    lat: point.lat,
-                    long: point.long
+                    lat: parseFloat(point.lat),
+                    long: parseFloat(point.long),
+                    description: point.description
                 })
             });
 
@@ -53,55 +51,50 @@ export class PointService {
         }
     }
 
-    async updatePoint(id, pointData) {
+    async updatePoint(id, point) {
         try {
-            if (!pointData.description || !pointData.lat || !pointData.long) {
-                throw new Error('Todos los campos son requeridos');
-            }
-
-            if (isNaN(pointData.lat) || pointData.lat < -90 || pointData.lat > 90) {
-                throw new Error('Latitud debe estar entre -90 y 90');
-            }
-            if (isNaN(pointData.long) || pointData.long < -180 || pointData.long > 180) {
-                throw new Error('Longitud debe estar entre -180 y 180');
-            }
-
-            const response = await fetch(`${this.API_URL}/api/checkpoints?id=${id}`, {
+            console.log(`Intentando actualizar punto con ID: ${id}`, point);
+            // Cambiar de query parameter a parámetro de ruta
+            const response = await fetch(`${this.API_URL}/api/checkpoints/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    description: pointData.description,
-                    lat: pointData.lat,
-                    long: pointData.long
+                    description: point.description,
+                    lat: parseFloat(point.lat),
+                    long: parseFloat(point.long)
                 })
             });
 
             if (!response.ok) {
-                throw new Error('Error al actualizar el punto');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Error al actualizar el punto');
             }
 
             return await response.json();
         } catch (error) {
-            console.error('Error updating point:', error);
+            console.error('Error en updatePoint:', error);
             throw error;
         }
     }
 
     async deletePoint(id) {
         try {
-            const response = await fetch(`${this.API_URL}/api/checkpoints?id=${id}`, {
+            console.log(`Intentando eliminar punto con ID: ${id}`);
+            // Cambiar de query parameter a parámetro de ruta
+            const response = await fetch(`${this.API_URL}/api/checkpoints/${id}`, {
                 method: 'DELETE'
             });
 
             if (!response.ok) {
-                throw new Error('Error al eliminar el punto');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Error al eliminar el punto');
             }
 
             return await response.json();
         } catch (error) {
-            console.error('Error deleting point:', error);
+            console.error('Error en deletePoint:', error);
             throw error;
         }
     }

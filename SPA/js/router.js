@@ -79,7 +79,7 @@ export class Router {
         }
     }
     cleanupPointsPage() {
-        if (window.cleanupPointPage) {
+        if (window.cleanupPointsPage) { 
             window.cleanupPointsPage();
         }
     }

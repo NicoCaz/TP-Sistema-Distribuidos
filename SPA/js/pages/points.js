@@ -97,4 +97,12 @@ window.cleanupPointsPage = () => {
     }
 };
 
-export default PointsPage;
+if (document.readyState === 'complete' && window.location.pathname === '/puntos') {
+    window.initPointsPage();
+} else {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.location.pathname === '/puntos') {
+            window.initPointsPage();
+        }
+    });
+}
