@@ -15,7 +15,7 @@ const int mqttPort = 1883;
 String macWemos;
 int packageNum = 1;
 int totalPackages = 1;
-int paquetesMaximos = 2;
+int paquetesMaximos = 7;
 
 std::vector<std::string> deviceList;
 const char* topic = "test/topic"; 
