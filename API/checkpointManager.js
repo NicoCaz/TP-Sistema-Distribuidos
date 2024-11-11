@@ -11,7 +11,7 @@ let checkpointData = {
   contPackages: 0,
   animals: []
 };
-
+let completedData = null; // Variable para almacenar el sms completo
 
 const updateSMS = (jsonData) => {
   if (auxFunc.valCheckpoint(jsonData.checkpointID)) {//ver si hay mejor lugar
@@ -34,7 +34,7 @@ const updateSMS = (jsonData) => {
         }
       });
 
-      const completedData = { ...checkpointData };
+      completedData = { ...checkpointData };
 
       checkpointData = {
         packageNum: 0,
@@ -52,8 +52,12 @@ const updateSMS = (jsonData) => {
   }
 }
 
-const getCheckpointData = () => {
+const getCheckpointData = () => {//el sms por bloques
   return checkpointData;
 }
 
-module.exports = { updateSMS, getCheckpointData };
+const getCompletedSMS = () => {//el sms completo
+  return completedData; 
+}
+
+module.exports = { updateSMS, getCheckpointData, getCompletedSMS};

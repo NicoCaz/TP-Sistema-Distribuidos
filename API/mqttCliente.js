@@ -37,6 +37,7 @@ const completSMS = funcManager.updateSMS(jsonData);
 
 if (completSMS) {
   //mandar a SPA
+  console.log('SMS completo:', completSMS);
 }
 
 
