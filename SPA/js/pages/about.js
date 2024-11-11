@@ -37,7 +37,7 @@ class AboutPage {
                 this.aboutService.getContributorsCount(),
                 this.aboutService.getPullRequestsCount(),
                 this.aboutService.getBranchesCount(),
-                this.aboutService.getRecentCommits(5)
+                this.aboutService.getRecentCommits(10)
             ]);
 
             console.log('Datos cargados exitosamente:', { commits, contributors, pr, branches });

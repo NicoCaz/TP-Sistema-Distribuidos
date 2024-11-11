@@ -5,15 +5,26 @@ export class AboutService {
 
     async getCommitsCount() {
         try {
-            const response = await fetch(`${this.BASE_URL}/commits`);
+            const response = await fetch(`${this.BASE_URL}/commits?per_page=1`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const commits = await response.json();
-            return Array.isArray(commits) ? commits.length : 0;
+            
+            // Obtener el número de commits a partir del header 'Link'
+            const linkHeader = response.headers.get('Link');
+            if (linkHeader) {
+                const lastPageMatch = linkHeader.match(/&page=(\d+)>; rel="last"/);
+                if (lastPageMatch) {
+                    return parseInt(lastPageMatch[1], 10);
+                }
+            }
+            
+            // Si no hay encabezado Link, asumimos que hay 1 commit
+            return 1;
         } catch (error) {
             console.error('Error fetching commits:', error);
             return 0;
         }
     }
+    
 
     async getContributorsCount() {
         try {
