@@ -1,0 +1,16 @@
+{
+  "packageNum": 0,
+  "checkpointID": "08:A6:F7:A1:8E:80",
+  "totalPackages": 1,
+  "contPackages": 1,
+  "animals": [
+    {
+      "id": "68:fc:ca:8a:ff:a7",
+      "rssi": -83
+    },
+    {
+      "id": "7c:a4:49:17:c0:ee",
+      "rssi": -62
+    }
+  ]
+}

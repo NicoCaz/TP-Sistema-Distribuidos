@@ -16,7 +16,7 @@ client.on('connect', () => {
   });
 
   // Publicar un mensaje en el tema
-  client.publish('test/topic', '¡Hola desde Node.js!');
+//  client.publish('test/topic', '¡Hola desde Node.js!');
 });
 
 // Manejar los mensajes recibidos

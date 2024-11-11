@@ -8,6 +8,7 @@
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+
 const char* ssid = "Fibertel WiFi980 2.4GHz";  
 const char* password = "chesterton123";  // xD
 const char* mqttServer = "192.168.0.4"; 
@@ -30,6 +31,7 @@ void setup() {
   Serial.begin(115200); 
   connectToWiFi();
   connectToMQTT();
+  client.setKeepAlive(60); // Mantiene la conexión cada 60 segundos
   client.setServer(IPAddress(192, 168, 0, 4), mqttPort);
   BLEDevice::init("ESP32_BLE"); 
   pBLEScan = BLEDevice::getScan(); 
@@ -67,7 +69,7 @@ void loop() {
 
      
       int packageNum = 1;
-      int totalPackages = (deviceCount / paquetesMaximos) + 1;
+      int totalPackages = ((deviceCount - 1) / paquetesMaximos) + 1;
 
       
       for (int i = 0; i < deviceCount; i++) {
@@ -112,7 +114,7 @@ void loop() {
         }
       }
 
-      delay(10000); 
+      delay(5000); 
     }
   }
 }

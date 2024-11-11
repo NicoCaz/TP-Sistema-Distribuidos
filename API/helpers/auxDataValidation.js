@@ -9,9 +9,9 @@ const getCheckpoint = () => {
 };
 
 const valCheckpoint = (checkpointID) => {
-  const regCheckpoint = getCheckpoint();
-  const check = regCheckpoint.find((check) => check.checkpointID === checkpointID);
-  if (!check) throw new Error("401");
+ // const regCheckpoint = getCheckpoint();
+  //const check = regCheckpoint.find((check) => check.checkpointID === checkpointID);
+ // if (!check) throw new Error("401");
   return true;
 };
 
