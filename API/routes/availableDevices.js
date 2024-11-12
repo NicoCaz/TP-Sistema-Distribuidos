@@ -1,4 +1,4 @@
-const { getCompletedSMS } = require('../../checkpointManager');
+const { getCompletedSMS } = require('../checkpointManager');
 
 
 const availableDevices = (req, res) => {//ver como actualizar para tener los datos de los dispositivos receintes

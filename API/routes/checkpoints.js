@@ -23,7 +23,7 @@ const routeCheck = (req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
           data: {
-              checkpoints: checkpoints.checkpoints
+              checkpoints: checkpoints
           }
       }));
 
@@ -52,7 +52,7 @@ const routeCheck = (req, res) => {
                   description: checkpoint.description
               };
 
-              checkpoints.checkpoints.push(newCheckpoint);
+              checkpoints.push(newCheckpoint);
               auxFunc.saveCheckpoints(checkpoints, filePath);
               
               console.log('✅ Checkpoint creado:', newCheckpoint);
@@ -69,10 +69,10 @@ const routeCheck = (req, res) => {
   } else if (base === '/api/checkpoints' && id && req.method === 'DELETE') {
       console.log('➡️ Procesando DELETE checkpoint:', id);
       
-      const index = checkpoints.checkpoints.findIndex(cp => cp.id === id);
+      const index = checkpoints.findIndex(cp => cp.id === id);
       
       if (index !== -1) {
-          checkpoints.checkpoints.splice(index, 1);
+          checkpoints.splice(index, 1);
           auxFunc.saveCheckpoints(checkpoints, filePath);
           console.log('✅ Checkpoint eliminado');
           res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -97,18 +97,18 @@ const routeCheck = (req, res) => {
               const updateData = JSON.parse(body);
               console.log('📦 Datos recibidos:', updateData);
 
-              const index = checkpoints.checkpoints.findIndex(cp => cp.id === id);
+              const index = checkpoints.findIndex(cp => cp.id === id);
               
               if (index === -1) {
                   throw new Error('Checkpoint no encontrado');
               }
 
               const updatedCheckpoint = {
-                  ...checkpoints.checkpoints[index],
+                  ...checkpoints[index],
                   ...updateData
               };
 
-              checkpoints.checkpoints[index] = updatedCheckpoint;
+              checkpoints[index] = updatedCheckpoint;
               auxFunc.saveCheckpoints(checkpoints, filePath);
               
               console.log('✅ Checkpoint actualizado');

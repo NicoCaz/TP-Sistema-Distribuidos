@@ -6,7 +6,7 @@ const filePath = path.join(__dirname, '..', 'BBDD','checkpoints.json');
 const getCheckpoint = () => {
   const data = fs.readFileSync(filePath, 'utf8');
   const jsonData = JSON.parse(data);
-  return jsonData.checkpoints;
+  return jsonData;//jsonData es un array
 };
 
 const valCheckpoint = (checkpointID) => {
