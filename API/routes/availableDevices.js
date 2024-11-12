@@ -21,8 +21,7 @@ const availableDevices = (req, res) => {//ver como actualizar para tener los dat
     res.writeHead(200, { 'Content-Type': 'application/json' });
 
     if (true/*completedData*/) {
-        res.end(JSON.stringify(aux.animals));; //array de animales
-
+        res.end(JSON.stringify(aux.animals));; //prueba con aux
        // res.end(JSON.stringify(completedData.animals));; //array de animales
     } else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
