@@ -117,6 +117,7 @@ class MapPage {
         if (this.map) {
             this.map.remove();
             this.map = null;
+            this.mapService = null;
         }
         // Limpiar el intervalo si existe
         if (this.updateInterval) {
