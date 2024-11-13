@@ -8,6 +8,7 @@ export class Router {
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
                     this.cleanupMapPage();
+                    this.cleanupAnimalPositionsPage();
                 }
             },
             '/about': {
@@ -23,6 +24,7 @@ export class Router {
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
                     this.cleanupMapPage();
+                    this.cleanupAnimalPositionsPage();
                 }
             },
             '/animales': {
@@ -38,6 +40,7 @@ export class Router {
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
                     this.cleanupMapPage();
+                    this.cleanupAnimalPositionsPage();
                 }
             },
             '/mapa': {
@@ -53,6 +56,7 @@ export class Router {
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
                     this.cleanupMapPage();
+                    this.cleanupAnimalPositionsPage();
                 }
             },
             '/puntos': {
@@ -68,6 +72,22 @@ export class Router {
                     this.cleanupAboutPage();
                     this.cleanupPointsPage();
                     this.cleanupMapPage();
+                    this.cleanupAnimalPositionsPage();
+                }
+            },'/analisis': {
+                template: '/pages/animal-positions.html',
+                script: '/js/pages/animal-positions.js',
+                init: () => {
+                    if (window.initAnimalPositionsPage) {
+                        window.initAnimalPositionsPage();
+                    }
+                },
+                cleanup: () => {
+                    this.cleanupAnimalsPage();
+                    this.cleanupAboutPage();
+                    this.cleanupPointsPage();
+                    this.cleanupMapPage();
+                    this.cleanupAnimalPositionsPage();
                 }
             },
         };
@@ -75,13 +95,20 @@ export class Router {
         this.currentScript = null;
         this.currentPath = null;
         this.init();
-    }
+    }analisis
 
     cleanupAnimalsPage() {
         if (window.cleanupAnimalsPage) {
             window.cleanupAnimalsPage();
         }
     }
+
+    cleanupAnimalPositionsPage() {
+        if (window.cleanupAnimalPositionsPage) {
+            window.cleanupAnimalPositionsPage();
+        }
+    }
+
 
     cleanupAboutPage() {
         if (window.cleanupAboutPage) {
@@ -108,6 +135,7 @@ export class Router {
             this.cleanupAboutPage();
             this.cleanupPointsPage();
             this.cleanupMapPage();
+            this.cleanupAnimalPositionsPage();
         }
     }
 
