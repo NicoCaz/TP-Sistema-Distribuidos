@@ -10,7 +10,7 @@ export class Router {
                     this.cleanupMapPage();
                     this.cleanupAnimalPositionsPage();
                 }
-            },
+            }, 
             '/about': {
                 template: '/pages/about.html',
                 script: '/js/pages/about.js',
@@ -216,6 +216,7 @@ export class Router {
         this.currentPath = path;
 
         try {
+            
             const content = await this.loadContent(route.template);
             const mainPage = document.getElementById('main-page');
             mainPage.innerHTML = content;
