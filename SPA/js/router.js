@@ -10,6 +10,20 @@ export class Router {
                     this.cleanupMapPage();
                     this.cleanupAnimalPositionsPage();
                 }
+            }, 
+            '/login': {
+                template: '/pages/login.html',
+                script: '/js/pages/login.js',
+                init: () => {
+                    if (window.initLoginPage) {
+                        window.initLoginPage();
+                    }
+                },
+                cleanup: () => {
+                    if (window.cleanupLoginPage) {
+                        window.cleanupLoginPage();
+                    }
+                }
             },
             '/about': {
                 template: '/pages/about.html',
@@ -216,6 +230,10 @@ export class Router {
         this.currentPath = path;
 
         try {
+            if (path !== '/login') {
+                const isAuthenticated = await import('./auth.js').then(module => module.checkAuth());
+                if (!isAuthenticated) return;
+            }
             const content = await this.loadContent(route.template);
             const mainPage = document.getElementById('main-page');
             mainPage.innerHTML = content;

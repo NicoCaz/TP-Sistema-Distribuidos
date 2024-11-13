@@ -228,6 +228,46 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary-color);
         }
+
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-links {
+            flex-grow: 1;
+        }
+
+        .nav-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 0;
+            margin-top: auto;
+        }
+
+        .user-info {
+            color: white;
+            font-size: 0.9em;
+            padding: 10px 25px;
+            margin-bottom: 10px;
+        }
+
+        #logout-link {
+            color: #ff6b6b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #logout-link:hover {
+            background-color: rgba(255, 107, 107, 0.1);
+            color: #ff8585;
+        }
+
+        #logout-link i {
+            font-size: 1.2em;
+        }
+
     </style>
 
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css" rel="stylesheet">
@@ -247,6 +287,7 @@
 
     <div id="root">
         <nav id="main-nav" class="sidebar">
+            <a href="#" id="logout-link">Logout</a>
             <a href="/">Home</a>
             <a href="/animales">Animales</a>
             <a href="/puntos">Puntos</a>
@@ -274,6 +315,9 @@
             }
         });
     });
+
+
+
 
         new Router();
     </script>
