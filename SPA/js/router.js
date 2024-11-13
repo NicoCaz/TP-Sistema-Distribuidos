@@ -3,13 +3,7 @@ export class Router {
         this.routes = {
             '/': {
                 template: '/pages/index.html',
-                cleanup: () => {
-                    this.cleanupAnimalsPage();
-                    this.cleanupAboutPage();
-                    this.cleanupPointsPage();
-                    this.cleanupMapPage();
-                    this.cleanupAnimalPositionsPage();
-                }
+                cleanup: () => this.cleanupAllPages()
             }, 
             '/about': {
                 template: '/pages/about.html',
@@ -19,13 +13,7 @@ export class Router {
                         window.initAboutPage();
                     }
                 },
-                cleanup: () => {
-                    this.cleanupAnimalsPage();
-                    this.cleanupAboutPage();
-                    this.cleanupPointsPage();
-                    this.cleanupMapPage();
-                    this.cleanupAnimalPositionsPage();
-                }
+                cleanup: () => this.cleanupAllPages()
             },
             '/animales': {
                 template: '/pages/animales.html',
@@ -35,13 +23,7 @@ export class Router {
                         window.initAnimalsPage();
                     }
                 },
-                cleanup: () => {
-                    this.cleanupAnimalsPage();
-                    this.cleanupAboutPage();
-                    this.cleanupPointsPage();
-                    this.cleanupMapPage();
-                    this.cleanupAnimalPositionsPage();
-                }
+                cleanup: () => this.cleanupAllPages()
             },
             '/mapa': {
                 template: '/pages/mapa.html',
@@ -51,13 +33,7 @@ export class Router {
                         window.initMapPage();
                     }
                 },
-                cleanup: () => {
-                    this.cleanupAnimalsPage();
-                    this.cleanupAboutPage();
-                    this.cleanupPointsPage();
-                    this.cleanupMapPage();
-                    this.cleanupAnimalPositionsPage();
-                }
+                cleanup: () => this.cleanupAllPages()
             },
             '/puntos': {
                 template: '/pages/points.html',
@@ -67,14 +43,9 @@ export class Router {
                         window.initPointsPage();
                     }
                 },
-                cleanup: () => {
-                    this.cleanupAnimalsPage();
-                    this.cleanupAboutPage();
-                    this.cleanupPointsPage();
-                    this.cleanupMapPage();
-                    this.cleanupAnimalPositionsPage();
-                }
-            },'/analisis': {
+                cleanup: () => this.cleanupAllPages()
+            },
+            '/analisis': {
                 template: '/pages/animal-positions.html',
                 script: '/js/pages/animal-positions.js',
                 init: () => {
@@ -82,108 +53,87 @@ export class Router {
                         window.initAnimalPositionsPage();
                     }
                 },
-                cleanup: () => {
-                    this.cleanupAnimalsPage();
-                    this.cleanupAboutPage();
-                    this.cleanupPointsPage();
-                    this.cleanupMapPage();
-                    this.cleanupAnimalPositionsPage();
-                }
+                cleanup: () => this.cleanupAllPages()
             },
+            '/404': {
+                template: '/pages/404.html'
+            }
         };
 
         this.currentScript = null;
         this.currentPath = null;
         this.init();
-    }analisis
-
-    cleanupAnimalsPage() {
-        if (window.cleanupAnimalsPage) {
-            window.cleanupAnimalsPage();
-        }
     }
 
-    cleanupAnimalPositionsPage() {
-        if (window.cleanupAnimalPositionsPage) {
-            window.cleanupAnimalPositionsPage();
-        }
-    }
+    cleanupAllPages() {
+        const cleanupFunctions = [
+            'cleanupAnimalsPage',
+            'cleanupAboutPage',
+            'cleanupPointsPage',
+            'cleanupMapPage',
+            'cleanupAnimalPositionsPage'
+        ];
 
-
-    cleanupAboutPage() {
-        if (window.cleanupAboutPage) {
-            window.cleanupAboutPage();
-        }
-    }
-
-    cleanupPointsPage() {
-        if (window.cleanupPointsPage) {
-            window.cleanupPointsPage();
-        }
-    }
-
-    cleanupMapPage() {
-        if (window.cleanupMapPage) {
-            window.cleanupMapPage();
-        }
-    }
-
-    cleanupCurrentPage() {
-        // No llamar a la función cleanup de la ruta directamente
-        if (this.currentPath) {
-            this.cleanupAnimalsPage();
-            this.cleanupAboutPage();
-            this.cleanupPointsPage();
-            this.cleanupMapPage();
-            this.cleanupAnimalPositionsPage();
-        }
+        cleanupFunctions.forEach(cleanup => {
+            if (window[cleanup]) {
+                window[cleanup]();
+            }
+        });
     }
 
     init() {
-        window.addEventListener('popstate', () => this.route());
-        window.addEventListener('load', () => {
-            const path = window.location.pathname || '/';
-            this.route(path);
+        // Manejar la navegación hacia atrás/adelante
+        window.addEventListener('popstate', (event) => {
+            // Prevenir comportamiento por defecto si es necesario
+            event.preventDefault();
+            const path = window.location.pathname;
+            this.route(path, false); // false indica que no debe agregar una nueva entrada al historial
         });
+
+        // Manejar la carga inicial y recargas
+        window.addEventListener('load', () => {
+            const path = window.location.pathname;
+            this.route(path, false);
+        });
+
         this.setupNavigation();
     }
 
     setupNavigation() {
-        document.querySelectorAll('nav a').forEach(link => {
-            link.addEventListener('click', (e) => this.handleClick(e));
+        document.addEventListener('click', (e) => {
+            // Usar delegación de eventos para manejar los clicks en los enlaces
+            const link = e.target.closest('nav a');
+            if (link) {
+                e.preventDefault();
+                const path = link.getAttribute('href');
+                this.navigateTo(path);
+            }
         });
-    }
-
-    handleClick(event) {
-        event.preventDefault();
-        const path = event.target.getAttribute('href');
-        this.navigateTo(path);
     }
 
     navigateTo(path) {
         if (this.currentPath === path) return;
-        
-        this.cleanupCurrentPage();
-
-        window.history.pushState({}, '', path);
-        this.currentPath = path;
-        this.route(path);
+        this.route(path, true);
     }
 
     async loadContent(url) {
         try {
             const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             return await response.text();
         } catch (error) {
             console.error('Error cargando contenido:', error);
-            return '<h1>Error 404: Página no encontrada</h1>';
+            // Redirigir a 404 si hay un error
+            return this.redirectTo404();
         }
     }
 
     async loadScript(scriptPath) {
         if (!scriptPath) return true;
 
+        // Limpiar script anterior si existe
         if (this.currentScript) {
             document.body.removeChild(this.currentScript);
             this.currentScript = null;
@@ -201,24 +151,49 @@ export class Router {
             
             script.onerror = () => {
                 reject(new Error(`Error loading script: ${scriptPath}`));
+                this.redirectTo404();
             };
 
             document.body.appendChild(script);
         });
     }
 
-    async route(path = window.location.pathname) {
+    redirectTo404() {
+      // if (this.currentPath !== '/404') {
+            window.history.pushState({}, '', '/404');
+            return this.route('/404', false);
+        //}
+    }
+
+    async route(path, addToHistory = true) {
         console.log('Routing to:', path);
         
-        this.cleanupCurrentPage();
+        // Limpiar página actual antes de cargar la nueva
+        if (this.currentPath) {
+            this.cleanupAllPages();
+        }
 
-        const route = this.routes[path] || this.routes['/'];
-        this.currentPath = path;
+        // Verificar si la ruta existe
+        const route = this.routes[path];
+        console.log('Route:', route);
+        if (!route) {
+            return this.redirectTo404();
+        }
 
         try {
+            // Actualizar el historial si es necesario
+            if (addToHistory) {
+                window.history.pushState({path}, '', path);
+            }
+
+            this.currentPath = path;
             
             const content = await this.loadContent(route.template);
             const mainPage = document.getElementById('main-page');
+            if (!mainPage) {
+                throw new Error('Element with id "main-page" not found');
+            }
+
             mainPage.innerHTML = content;
 
             if (route.script) {
@@ -231,6 +206,7 @@ export class Router {
             this.updateActiveNav(path);
         } catch (error) {
             console.error('Error en el enrutamiento:', error);
+            return this.redirectTo404();
         }
     }
 

@@ -1,34 +1,147 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+    
+        /* Contenedor principal */
+        .page-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease-in;
+        }
+    
+        /* Título principal */
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+    
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background-color: var(--secondary-color);
+            border-radius: 2px;
+        }
+    
+        /* Secciones de contenido */
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+    
+        .content-section:hover {
+            transform: translateY(-5px);
+        }
+    
+        /* Títulos de sección */
+        strong {
+            color: var(--secondary-color);
+            font-size: 1.25rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+    
+        /* Párrafos */
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+    
+        /* Efectos y animaciones */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+    
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    
+        /* Diseño responsivo */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 1rem;
+            }
+    
+            h1 {
+                font-size: 2rem;
+            }
+    
+            .content-section {
+                padding: 1.5rem;
+            }
+        }
 
-</head>
-
+        /* Estilos para destacar información importante */
+        .highlight {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 0.5rem 0;
+        }
+    </style>
+    </head>
 <body>
     <div class="page-container">
-        <h1>Home</h1>
-        <p>
+        <h1>Sistema de Monitoreo Ganadero</h1>
+        
+        <div class="content-section">
             <strong>Problema a resolver</strong>
-            La finalidad de este software es simular un sistema de monitoreo y control de ganado,
-            ofreciendo una solución moderna para los dueños de recursos ganaderos que reemplace
-            los métodos de inspección visual, existentes en muchos negocios rurales. La idea es poder
-            informar la posición de los animales mediantes Puntos de Control que indican si están
-            alimentándose, recibiendo alguna vacuna, descansando, etc.
-            </p>
-
             <p>
-            <strong>Solución propuesta</strong>
-            Cada animal estará representado por un celular que emite señales de Bluetooth y cada
-            Punto de Control estará representado por una placa Wemos/Arduino con un receptor
-            Bluetooth incorporado, que detecta las señales emitidas por los celulares. A partir de
-            determinada intensidad de señal, se asume que el animal se encuentra en ese punto de
-            control.
+                La finalidad de este software es simular un sistema de monitoreo y control de ganado,
+                ofreciendo una solución moderna para los dueños de recursos ganaderos que reemplace
+                los métodos de inspección visual, existentes en muchos negocios rurales. La idea es poder
+                informar la posición de los animales mediante Puntos de Control que indican si están
+                alimentándose, recibiendo alguna vacuna, descansando, etc.
             </p>
-            </div>
-</body>
+        </div>
 
+        <div class="content-section">
+            <strong>Solución propuesta</strong>
+            <p>
+                Cada animal estará representado por un celular que emite señales de Bluetooth y cada
+                Punto de Control estará representado por una placa Wemos/Arduino con un receptor
+                Bluetooth incorporado, que detecta las señales emitidas por los celulares. A partir de
+                determinada intensidad de señal, se asume que el animal se encuentra en ese punto de
+                control.
+            </p>
+            <div class="highlight">
+                Sistema de monitoreo en tiempo real mediante tecnología Bluetooth
+            </div>
+            </div>
+    </div>
+</body>
 </html>
