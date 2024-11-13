@@ -100,8 +100,7 @@ window.initAboutPage = () => {
 // Limpieza global
 window.cleanupAboutPage = () => {
     console.log('Limpiando AboutPage');
-    if (aboutPageInstance) {
-        this.aboutService = null;
+    if (aboutPageInstance) {       
         aboutPageInstance.cleanup();   
         aboutPageInstance = null;
     }
