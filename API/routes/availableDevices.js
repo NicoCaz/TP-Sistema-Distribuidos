@@ -1,21 +1,10 @@
-const { getCompletedSMS } = require('../checkpointManager');
+const { getCompletedSMS: getCompletedListDevices } = require('../checkpointManager');
 
 
 
 const availableDevices = (req, res) => {//ver como actualizar para tener los datos de los dispositivos receintes
-  const completedData = getCompletedSMS(); 
-  let aux = {
-    packageNum: 1,
-    checkpointID: '12345',
-    totalPackages: 1,
-    contPackages: 1,
-    animals: [
-      { id: 'animal1', rssi: -77 },
-      { id: 'animal2', rssi: -44 },
-      { id: 'animal3', rssi: -81 }
-    ]
-  };
-
+  const completedData = getCompletedListDevices(); 
+  
 
   if (req.url === '/api/availableDevices' && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
