@@ -9,9 +9,8 @@ const availableDevices = (req, res) => {//ver como actualizar para tener los dat
   if (req.url === '/api/availableDevices' && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
 
-    if (true/*completedData*/) {
-        res.end(JSON.stringify(aux.animals));; //prueba con aux
-       // res.end(JSON.stringify(completedData.animals));; //array de animales
+    if (completedData) {
+        res.end(JSON.stringify(completedData));; //array de animales
     } else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'No se encontraron dispositivos cerca' }));

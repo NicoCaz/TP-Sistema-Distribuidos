@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const funcManager = require('..','./checkpointManager');
 
 const animalsFilePath = path.join(__dirname, '..', 'BBDD', 'animals.json');
 const checkpointsFilePath = path.join(__dirname, '..', 'BBDD', 'checkpoints.json');
