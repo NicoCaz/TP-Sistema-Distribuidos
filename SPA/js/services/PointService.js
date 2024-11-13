@@ -34,6 +34,7 @@ export class PointService {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    id: point.id,
                     lat: parseFloat(point.lat),
                     long: parseFloat(point.long),
                     description: point.description
@@ -61,6 +62,7 @@ export class PointService {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    id: point.id,
                     description: point.description,
                     lat: parseFloat(point.lat),
                     long: parseFloat(point.long)

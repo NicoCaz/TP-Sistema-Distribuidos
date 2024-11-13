@@ -31,6 +31,7 @@ export class PointList {
             <div class="point-item" data-id="${point.id}">
                 <div class="point-info">
                     <h3>${point.description || 'Sin descripción'}</h3>
+                    <div class="point-id">UUID: ${point.id}</div>
                     <div class="coordinates">
                         <span class="label">Lat:</span> ${point.lat.toFixed(6)}
                         <span class="label">Long:</span> ${point.long.toFixed(6)}
