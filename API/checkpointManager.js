@@ -4,7 +4,7 @@ const auxFunc = require('./helpers/auxDataValidation.js');
 //const auxFunc = require('./helpers/auxFunctionsCP.js');
 
 const filePath = path.join(__dirname, 'BBDD', 'checkpoint_data.json');
- 
+
 let checkpointData = [{
   packageNum: 0,  //si valido por packagenum no consideraria si se pierden intermedios?
   checkpointID: '',
@@ -12,9 +12,9 @@ let checkpointData = [{
   contPackages: 0,
   animals: []
 }];
-let completedData = null; // Variable para almacenar el sms completo
+let completedData = []; // Variable para almacenar el sms completo
 
-const updateSMS = (jsonData) => {//agregar la validacion*******
+const updateSMS = (jsonData) => {
  if (auxFunc.valCheckpoint(jsonData.checkpointID)) {//valido que exist
   
     const subID = jsonData.checkpointID;
@@ -47,11 +47,19 @@ const updateSMS = (jsonData) => {//agregar la validacion*******
             }
           });
 
-          completedData = { ...checkpointData[index] };
+        // Encuentra el índice del objeto con el subID
+        let completedIndex = completedData.findIndex(data => data.checkpointID === subID);
 
+        if (completedIndex === -1) {
+          // Si no existe, agrega un nuevo objeto al array
+          completedData.push({ ...checkpointData[index] });
+        } else {
+          // Si existe, actualiza el objeto existente para no tener redundancia de MAC
+          completedData[completedIndex] = { ...checkpointData[index] };
+        }
           checkpointData[index] = {
             packageNum: 0,
-            checkpointID: '',
+            checkpointID: subID,
             totalPackages: 0,
             contPackages: 0,
             animals: []
@@ -75,7 +83,7 @@ const getCompletedSMS = () => {//el sms completo
 }
 
 const getCompletedListDevices = () => {//el sms completo
-  return checkpointData.flatMap(data => data.animals);
+  return completedData.flatMap(data => data.animals);
 }
 
 module.exports = { updateSMS, getCheckpointData, getCompletedSMS,getCompletedListDevices};
