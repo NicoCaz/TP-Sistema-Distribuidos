@@ -1,6 +1,6 @@
 const mqtt = require('mqtt');
 const funcManager = require('./checkpointManager');
-
+const CheckpointHandler = require('./helpers/auxMqtt');
 const client = mqtt.connect('mqtt://192.168.0.4:1883'); 
 const handler = new CheckpointHandler();
 // Cuando se conecta exitosamente
