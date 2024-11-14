@@ -33,34 +33,6 @@ const getCheckpoints = () => {
   }
 };
 
-const generateRandomCoordinates = () => {
-  try {
-    const checkpoints = getCheckpoints();
-    
-    // Seleccionar un checkpoint aleatorio
-    const randomCheckpoint = checkpoints[Math.floor(Math.random() * checkpoints.length)];
-    
-    // Generar un offset aleatorio dentro del radio máximo
-    const randomRadius = Math.random() * MAX_RADIUS;
-    const randomAngle = Math.random() * 2 * Math.PI;
-    
-    // Calcular las nuevas coordenadas usando trigonometría
-    const lat = randomCheckpoint.lat + (randomRadius * Math.cos(randomAngle));
-    const long = randomCheckpoint.long + (randomRadius * Math.sin(randomAngle));
-    
-    return {
-      lat: Number(lat.toFixed(6)),
-      long: Number(long.toFixed(6)),
-      nearCheckpoint: randomCheckpoint.description
-    };
-  } catch (error) {
-    console.error('❌ Error al generar coordenadas:', error.message);
-    // Fallback a las coordenadas originales si hay error
-    const lat = -(Math.random() * (55 - 21) + 21).toFixed(6);
-    const long = -(Math.random() * (73 - 53) + 53).toFixed(6);
-    return { lat, long, nearCheckpoint: 'No disponible' };
-  }
-};
 
 const routeAnimals = (req, res) => {
   console.log(`\n🔄 Nueva solicitud: ${req.method} ${req.url}`);

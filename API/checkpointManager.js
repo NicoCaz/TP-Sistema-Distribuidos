@@ -134,6 +134,27 @@ const getCheckpointData = () => {
     return Array.isArray(checkpointData) ? checkpointData : [];
 };
 
+const getCompletedSMS = () => {
+    // Retorna solo los checkpoints que tienen todos sus paquetes completos
+    if (!Array.isArray(checkpointData)) {
+        return [];
+    }
+
+    return checkpointData
+        .filter(checkpoint => 
+            checkpoint.receivedPackages === checkpoint.totalPackages
+        )
+        .map(checkpoint => ({
+            checkpointID: checkpoint.checkpointID,
+            totalPackages: checkpoint.totalPackages,
+            animals: checkpoint.packages
+                .flatMap(pkg => pkg.animals)
+                .filter((animal, index, self) => 
+                    index === self.findIndex(a => a.id === animal.id)
+                )
+        }));
+};
+
 const getCompletedListDevices = () => {
     if (!Array.isArray(checkpointData)) {
         return [];
@@ -154,5 +175,6 @@ const getCompletedListDevices = () => {
 module.exports = { 
     updateSMS, 
     getCheckpointData, 
+    getCompletedSMS,  // Agregada la función al export
     getCompletedListDevices 
 };
