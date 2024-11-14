@@ -159,10 +159,8 @@ export class Router {
     }
 
     redirectTo404() {
-      // if (this.currentPath !== '/404') {
-            window.history.pushState({}, '', '/404');
-            return this.route('/404', false);
-        //}
+        window.history.pushState({}, '', '/404');
+        return this.route('/404', false);
     }
 
     async route(path, addToHistory = true) {
