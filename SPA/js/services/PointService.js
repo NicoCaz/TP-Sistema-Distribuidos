@@ -8,7 +8,7 @@ export class PointService {
 
     async getPoints() {
         try {
-            const response = await fetch(`${this.API_URL}/api/checkpoints`);
+            const response = await fetch(`${this.API_URL}/checkpoints`);
             if (!response.ok) throw new Error('Error al obtener los puntos');
             const data = await response.json();
             return data.data.checkpoints; // Extraer del nuevo formato
@@ -59,7 +59,7 @@ export class PointService {
         try {
             console.log(`Intentando actualizar punto con ID: ${id}`, point);
             // Cambiar de query parameter a parámetro de ruta
-            const response = await fetch(`${this.API_URL}/api/checkpoints/${id}`, {
+            const response = await fetch(`${this.API_URL}/checkpoints/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export class PointService {
         try {
             console.log(`Intentando eliminar punto con ID: ${id}`);
             // Cambiar de query parameter a parámetro de ruta
-            const response = await fetch(`${this.API_URL}/api/checkpoints/${id}`, {
+            const response = await fetch(`${this.API_URL}/checkpoints/${id}`, {
                 method: 'DELETE'
             });
 

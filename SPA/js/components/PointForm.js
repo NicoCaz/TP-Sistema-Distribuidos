@@ -31,13 +31,6 @@ export class PointForm {
     }
 
     handleSubmit() {
-        const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-        if (!uuidPattern.test(this.elements.id.value)) {
-            console.warn('UUID inválido');
-            alert('Por favor, ingrese un UUID válido');
-            return;
-        }
-
         const formData = {
             id: this.elements.id.value,
             description: this.elements.description.value,
