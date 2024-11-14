@@ -8,9 +8,14 @@ export class PointService {
 
     async getPoints() {
         try {
+            console.log('Intentando obtener puntos');
             const response = await fetch(`${this.API_URL}/checkpoints`);
-            if (!response.ok) throw new Error('Error al obtener los puntos');
+            if (!response.ok) {
+                throw new Error(`Error en la respuesta de la API: ${response.statusText}`);
+            }
+            console.log('Respuesta del servidor:', response.status);
             const data = await response.json();
+            console.log('Data:', data);
             return data.data.checkpoints; // Extraer del nuevo formato
         } catch (error) {
             console.error('Error en getPoints:', error);
@@ -31,7 +36,7 @@ export class PointService {
                 throw new Error('Longitud debe estar entre -180 y 180');
             }
 
-            const response = await fetch(`${this.API_URL}/api/checkpoints`, {
+            const response = await fetch(`${this.API_URL}/checkpoints`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

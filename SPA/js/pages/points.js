@@ -26,6 +26,7 @@ class PointsPage {
     async loadPoints() {
         try {
             this.pointList.showLoading();
+            console.log('Cargando puntos...');
             const points = await this.pointService.getPoints();
             console.log('Puntos cargados:', points);
             this.pointList.render(points);
