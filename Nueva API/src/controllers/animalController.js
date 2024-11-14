@@ -85,6 +85,7 @@ class AnimalController {
         });
     }
 
+    
     async delete(req, res, id) {
         try {
             const animals = await this.db.readData();
