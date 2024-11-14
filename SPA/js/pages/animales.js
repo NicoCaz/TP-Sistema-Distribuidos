@@ -22,7 +22,8 @@ class AnimalsPage {
         console.log('Iniciando carga de datos de AnimalsPage');
         this.animalForm.setOnRefreshDevices(this.loadDevices.bind(this));
         await this.loadAnimals();
-        await this.loadDevices();
+        //await this.loadDevices();
+        this.startAutoRefresh();
     }
 
     async loadAnimals() {
@@ -46,6 +47,13 @@ class AnimalsPage {
            
         }
     }
+    startAutoRefresh() {
+        // Actualizar cada 5 segundos
+        this.refreshInterval = setInterval(() => {
+            this.loadDevices();
+        }, 5000);
+    }
+
 
     async handleSubmit(formData, editingId) {
         try {
