@@ -11,9 +11,9 @@ const availableDevices = (req, res) => {
     
     if (completedData) {
       console.log('✅ Datos de dispositivos encontrados');
-      console.log('📤 Enviando lista de dispositivos:', completedData);
+      console.log('📤 Enviando lista de dispositivos:', completedData.flatMap(data => data.animals));
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(completedData));
+      res.end(JSON.stringify(completedData.flatMap(data => data.animals)));
     } else {
       console.log('❌ No se encontraron dispositivos cerca');
       res.writeHead(404, { 'Content-Type': 'application/json' });

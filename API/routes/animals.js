@@ -89,7 +89,7 @@ const routeAnimals = (req, res) => {
       };
     });
 
-    console.log('📤 Enviando posiciones:',dataPosition);
+    console.log('📤 Enviando posiciones:',JSON.stringify(dataPosition, null, 2));
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ dataPosition}));
   }
