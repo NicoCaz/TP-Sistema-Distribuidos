@@ -76,7 +76,8 @@ class MapPage {
             this.animalsLayer.clearLayers();
 
             // Cargar nuevas posiciones
-            const positions = await this.mapService.getAnimalPositions();
+            const positions=[]; 
+            //= await this.mapService.getAnimalPositions();
             positions.forEach(animal => {
                 const marker = L.marker([animal.lat, animal.long], {
                     icon: L.divIcon({
