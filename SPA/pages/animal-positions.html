@@ -1,4 +1,197 @@
-<div class="page-container">
-    <h1>Animales por Checkpoint</h1>
-    <div id="animalPositionsList"></div>
-</div>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-container h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e1e8ed;
+        }
+
+        .animal-positions-list {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px 0;
+        }
+
+        .list-header {
+            margin-bottom: 20px;
+        }
+
+        .list-header h2 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin: 0 0 10px 0;
+        }
+
+        .error-message {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .position-item {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            transition: transform 0.2s;
+        }
+
+        .position-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .position-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .position-id {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .position-description {
+            color: #34495e;
+        }
+
+        .position-coordinates {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-family: monospace;
+        }
+
+        .position-coordinates .label {
+            color: #6c757d;
+            margin-right: 5px;
+        }
+
+        .animals-summary h4 {
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+        }
+
+        .animals-summary-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .summary-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .animals-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .animals-table th {
+            background: #f1f3f5;
+            padding: 12px;
+            text-align: left;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .animals-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .animals-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .animal-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .no-data,
+        .no-animals {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 10px;
+            }
+
+            .position-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .animals-summary-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-container">
+        <h1>Animales por Checkpoint</h1>
+        <div id="animalPositionsList"></div>
+    </div>
+</body>
+
+</html>
