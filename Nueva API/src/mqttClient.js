@@ -21,13 +21,9 @@ class MQTTClient {
                 }
             });
         });
-//"packageNum":1,"totalPackages":1,"checkpointID":"08:A6:F7:A1:8E:80","animals":[{"id":"2f:cf:7a:a8:9a:ac","rssi":-59},{"id":"7c:a4:49:17:c0:ee","rssi":-72}]}
         this.client.on('message', async (topic, message) => {
-            
-            console.log(` 📩 Mensaje recibido en el tema ${topic}: ${JSON.parse(message.toString())}`);
-            const checkpointId = message.checkpointID;
-            let jsonData = JSON.parse(message.toString());
-            
+            const checkpointId=JSON.parse(message.toString());
+            console.log(` 📩 Mensaje recibido en el tema ${topic}: ${checkpointId}`);    
             try {
                 await this.handleDataMessage(message, checkpointId);
             } catch (error) {
