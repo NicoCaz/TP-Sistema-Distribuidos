@@ -14,9 +14,9 @@ class MQTTClient {
     setupEventHandlers() {
         this.client.on('connect', () => {
             console.log('🔗 Conectado a Mosquitto MQTT Broker');
-            this.subscribe('checkpoint/+/data');
-            this.subscribe('checkpoint/+/status');
-            this.subscribe('checkpoint/+/heartbeat');
+            this.client.subscribe('checkpoint/+/data');
+            this.client.subscribe('checkpoint/+/status');
+            this.client.subscribe('checkpoint/+/heartbeat');
         });
 
         this.client.on('message', async (topic, message) => {
