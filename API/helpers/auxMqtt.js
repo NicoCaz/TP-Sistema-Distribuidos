@@ -195,8 +195,6 @@ class CheckpointHandler {
   }
 
 
-
-
   validateInputData(data) {
     console.log('🔍 Validando datos de entrada...');
     if (!data || typeof data !== 'object') {
