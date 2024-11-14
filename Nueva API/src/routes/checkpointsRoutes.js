@@ -9,19 +9,19 @@ const checkpointsRoutes = async (req, res) => {
     const id = url.pathname.split('/')[3];
 
     switch (true) {
-        case method === 'GET' && url.pathname === '/api/checkpoints':
+        case method === 'GET' && url.pathname === '/API/checkpoints':
             await controller.getAll(req, res);
             break;
             
-        case method === 'POST' && url.pathname === '/api/checkpoints':
+        case method === 'POST' && url.pathname === '/API/checkpoints':
             await controller.create(req, res);
             break;
             
-        case method === 'PATCH' && url.pathname.startsWith('/api/checkpoints/'):
+        case method === 'PATCH' && url.pathname.startsWith('/API/checkpoints/'):
             await controller.update(req, res, id);
             break;
             
-        case method === 'DELETE' && url.pathname.startsWith('/api/checkpoints/'):
+        case method === 'DELETE' && url.pathname.startsWith('/API/checkpoints/'):
             await controller.delete(req, res, id);
             break;
             
