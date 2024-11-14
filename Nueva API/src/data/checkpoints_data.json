@@ -3,16 +3,12 @@
     "checkpointID": "08:A6:F7:A1:8E:80",
     "animals": [
       {
-        "id": "09:59:1d:1f:28:f4",
-        "rssi": -53
-      },
-      {
-        "id": "68:fc:ca:8a:ff:a7",
-        "rssi": -87
+        "id": "00:f5:ad:4c:fc:28",
+        "rssi": -80
       },
       {
         "id": "7c:a4:49:17:c0:ee",
-        "rssi": -72
+        "rssi": -46
       }
     ]
   }

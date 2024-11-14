@@ -1,32 +1,8 @@
 [
   {
     "id": "08:A6:F7:A1:8E:80",
-    "lat": -34.603722,
-    "long": -70,
-    "description": "Punto de control en zona de alimentación 2"
-  },
-  {
-    "id": "00:1B:44:11:3A:B7",
-    "lat": -34.606682,
-    "long": -58.370123,
-    "description": "Punto de control en entrada principal"
-  },
-  {
-    "id": "54:E1:AD:0E:C5:D1",
-    "lat": -34.601234,
-    "long": -58.385678,
-    "description": "Punto de control en zona de descanso"
-  },
-  {
-    "id": "A8:40:41:1A:2B:C3",
-    "lat": -34.605891,
-    "long": -58.376543,
-    "description": "Punto de control en área de ejercicios"
-  },
-  {
-    "id": "E0:D5:5E:8F:9C:31",
-    "lat": -34.607123,
-    "long": -58.379876,
-    "description": "Punto de control en sendero principal"
+    "lat": -38.0117759,
+    "long": -57.5832405,
+    "description": "WeMos Nico"
   }
 ]
