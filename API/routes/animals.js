@@ -26,9 +26,9 @@ const getAnimals = () => {
 const routeAnimals = (req, res) => {
   console.log(`\n🔄 Nueva solicitud: ${req.method} ${req.url}`);
   const animals = getAnimals();
-  const dataCheckPoints = handler.loadCheckpointData();
+  const dataCheckPoints = handler.getCheckpointDataSync();
   //creo el formato con los datos actuales
-
+  console.log(dataCheckPoints);
   if (req.url === '/api/animals/position' && req.method === 'GET') {
     console.log('📍 Solicitando posiciones de animales');
 

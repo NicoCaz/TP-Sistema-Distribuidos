@@ -51,6 +51,19 @@ class CheckpointHandler {
     }
   }
 
+  getCheckpointDataSync() {
+    try {
+      if (!fs.existsSync(this.filePath)) {
+        fs.writeFileSync(this.filePath, JSON.stringify([]));
+      }
+      const data = fs.readFileSync(this.filePath, 'utf8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error al cargar datos:', error);
+      return [];
+    }
+  }
+
   async saveCheckpointData(data) {
     try {
       this.openStream();
