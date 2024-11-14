@@ -6,93 +6,39 @@ const CHECKPOINT_FILE = 'checkpoint_data.json';
 class CheckpointHandler {
   constructor() {
     this.filePath = path.join(__dirname, '../BBDD', CHECKPOINT_FILE);
+    this.checkpoints = null;
     this.packageTracker = new Map();
-    this.fileStream = null;
-  }
-
-  openStream() {
-    if (!this.fileStream) {
-      // Asegurarse de que el archivo exista y tenga un array válido
-      if (!fs.existsSync(this.filePath)) {
-        fs.writeFileSync(this.filePath, JSON.stringify([]));
-      }
-      this.fileStream = fs.createWriteStream(this.filePath, { flags: 'w' }); // Cambio a 'w' para sobrescribir
-      console.log('Stream de datos abierto');
-    }
-  }
-
-  closeStream() {
-    return new Promise((resolve, reject) => {
-      if (this.fileStream) {
-        this.fileStream.end(() => {
-          this.fileStream.close((err) => {
-            if (err) {
-              console.error('Error al cerrar el stream:', err);
-              reject(err);
-            } else {
-              console.log('Stream de datos cerrado');
-              this.fileStream = null;
-              resolve();
-            }
-          });
-        });
-      } else {
-        resolve();
-      }
-    });
   }
 
   async loadCheckpointData() {
     try {
-      if (!fs.existsSync(this.filePath)) {
-        await fs.promises.writeFile(this.filePath, JSON.stringify([]));
+      // Si ya tenemos los datos en memoria, los devolvemos
+      if (this.checkpoints !== null) {
+        return this.checkpoints;
       }
+
+      // Si no existen en memoria, los cargamos del archivo
+      if (!fs.existsSync(this.filePath)) {
+        this.checkpoints = [];
+        return this.checkpoints;
+      }
+
       const data = await fs.promises.readFile(this.filePath, 'utf8');
-      try {
-        return JSON.parse(data);
-      } catch (parseError) {
-        console.error('Error al parsear JSON:', parseError);
-        return [];
-      }
+      this.checkpoints = JSON.parse(data);
+      return this.checkpoints;
     } catch (error) {
       console.error('Error al cargar datos:', error);
-      return [];
+      this.checkpoints = [];
+      return this.checkpoints;
     }
   }
-  
-  getCheckpointDataSync() {
-    try {
-      if (!fs.existsSync(this.filePath)) {
-        fs.writeFileSync(this.filePath, JSON.stringify([]));
-      }
-      const data = fs.readFileSync(this.filePath, 'utf8');
-      return JSON.parse(data);
-    } catch (error) {
-      console.error('Error al cargar datos:', error);
-      return [];
-    }
-  }
-  
+
   async saveCheckpointData(data) {
     try {
-      this.openStream();
-      // Asegurarse de que data sea un array
-      const dataToSave = Array.isArray(data) ? data : [];
-      const jsonData = JSON.stringify(dataToSave, null, 2);
-      
-      return new Promise((resolve, reject) => {
-        this.fileStream.write(jsonData, async (err) => {
-          if (err) {
-            console.error('Error al escribir datos:', err);
-            reject(err);
-          } else {
-            if (this.isTransmissionComplete(dataToSave)) {
-              await this.closeStream();
-            }
-            resolve();
-          }
-        });
-      });
+      // Actualizamos los datos en memoria
+      this.checkpoints = data;
+      // Escribimos al archivo
+      await fs.promises.writeFile(this.filePath, JSON.stringify(data, null, 2));
     } catch (error) {
       console.error('Error al guardar datos:', error);
       throw error;
@@ -127,45 +73,32 @@ class CheckpointHandler {
       const tracker = this.packageTracker.get(checkpointID);
       tracker.receivedPackages.add(packageNum);
 
-      // Cargar datos existentes
+      // Cargar datos de memoria o archivo si es necesario
       let checkpoints = await this.loadCheckpointData();
-      if (!Array.isArray(checkpoints)) {
-        checkpoints = [];
-      }
-
-      // Buscar el checkpoint existente
       let checkpointIndex = checkpoints.findIndex(cp => cp.checkpointID === checkpointID);
 
-      // Actualizar o crear nuevo checkpoint
-      const updatedCheckpoint = {
-        checkpointID,
-        animals: this.mergeAnimals(
-          checkpointIndex !== -1 ? checkpoints[checkpointIndex].animals : [],
-          animals
-        )
-      };
-
       if (checkpointIndex !== -1) {
-        checkpoints[checkpointIndex] = updatedCheckpoint;
+        checkpoints[checkpointIndex].animals = this.mergeAnimals(
+          checkpoints[checkpointIndex].animals,
+          animals
+        );
       } else {
-        checkpoints.push(updatedCheckpoint);
+        checkpoints.push({
+          checkpointID,
+          animals
+        });
       }
 
-      // Guardar los datos actualizados
-      await this.saveCheckpointData(checkpoints);
+      // Solo guardar al archivo si la transmisión está completa
+      if (tracker.receivedPackages.size === tracker.totalPackages) {
+        await this.saveCheckpointData(checkpoints);
+        this.packageTracker.delete(checkpointID);
+      }
 
-      const isComplete = tracker.receivedPackages.size === tracker.totalPackages;
-      
       return {
         success: true,
-        message: isComplete ? 
-          `Transmisión completa para checkpoint ${checkpointID}` : 
-          `Paquete ${packageNum}/${totalPackages} procesado para checkpoint ${checkpointID}`,
-        complete: isComplete,
-        progress: {
-          received: tracker.receivedPackages.size,
-          total: tracker.totalPackages
-        }
+        message: `Paquete ${packageNum}/${totalPackages} procesado para checkpoint ${checkpointID}`,
+        complete: tracker.receivedPackages.size === tracker.totalPackages
       };
 
     } catch (error) {
@@ -181,25 +114,38 @@ class CheckpointHandler {
   mergeAnimals(existingAnimals, newAnimals) {
     const animalMap = new Map();
     
-    // Convertir existingAnimals a array si no lo es
-    const existingArray = Array.isArray(existingAnimals) ? existingAnimals : [];
-    
     // Añadir animales existentes al mapa
-    existingArray.forEach(animal => {
-      if (animal && animal.id) {
-        animalMap.set(animal.id, animal);
-      }
-    });
+    if (Array.isArray(existingAnimals)) {
+      existingAnimals.forEach(animal => {
+        if (animal && animal.id) {
+          animalMap.set(animal.id, animal);
+        }
+      });
+    }
     
-    // Actualizar o añadir nuevos animales
+    // Actualizar con nuevos animales
     newAnimals.forEach(animal => {
       if (animal && animal.id) {
-        animalMap.set(animal.id, animal);
+        animalMap.set(animal.id, { ...animal });
       }
     });
     
     return Array.from(animalMap.values());
   }
+
+  getCheckpointDataSync() {
+    try {
+      if (!fs.existsSync(this.filePath)) {
+        fs.writeFileSync(this.filePath, JSON.stringify([]));
+      }
+      const data = fs.readFileSync(this.filePath, 'utf8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error al cargar datos:', error);
+      return [];
+    }
+  }
+  
 
   validateInputData(data) {
     if (!data || typeof data !== 'object') return false;
@@ -213,13 +159,6 @@ class CheckpointHandler {
       typeof animal.rssi === 'number'
     );
   }
-
-  async cleanup() {
-    await this.closeStream();
-    this.packageTracker.clear();
-  }
 }
 
 module.exports = CheckpointHandler;
-
-
