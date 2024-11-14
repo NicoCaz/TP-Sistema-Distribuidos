@@ -26,14 +26,14 @@ export class AnimalPositionList {
     }
 
     getAnimalIcon(type) {
-        // Para vacas usamos el ícono de vaca
         return '🐄';
     }
 
     render(data) {
         const listElement = this.container.querySelector('#positionsList');
         
-        const positions = data?.dataPosition || [];
+        // Ahora trabajamos directamente con el array de posiciones
+        const positions = Array.isArray(data) ? data : [];
 
         if (!positions || positions.length === 0) {
             listElement.innerHTML = '<div class="no-data">No hay posiciones registradas</div>';
@@ -46,8 +46,8 @@ export class AnimalPositionList {
             return `
                 <div class="position-item">
                     <div class="position-header">
-                        <div class="position-id">${position.idCP || 'ID No disponible'}</div>
-                        <div class="position-description">${position.descriptionCP || 'Sin descripción'}</div>
+                        <div class="position-id">${position.id || 'ID No disponible'}</div>
+                        <div class="position-description">${position.description || 'Sin descripción'}</div>
                     </div>
                     <div class="position-coordinates">
                         <span class="label">Lat:</span> ${this.safeNumberFormat(position.lat)}

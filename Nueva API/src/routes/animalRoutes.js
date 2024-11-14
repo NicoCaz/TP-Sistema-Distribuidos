@@ -9,6 +9,10 @@ const animalRoutes = async (req, res) => {
     const id = url.pathname.split('/')[3];
 
     switch (true) {
+
+        case method === 'GET' && url.pathname ==='/api/animals/position':
+            await controller.getAnimalsPositions(req, res);
+            break;
         case method === 'GET' && url.pathname === '/api/animals':
             await controller.getAll(req, res);
             break;
@@ -24,7 +28,7 @@ const animalRoutes = async (req, res) => {
         case method === 'DELETE' && url.pathname.startsWith('/api/animals/'):
             await controller.delete(req, res, id);
             break;
-            
+
         default:
             responseHandler.sendError(res, 'Ruta no encontrada', 404);
     }

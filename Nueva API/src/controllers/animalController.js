@@ -4,6 +4,8 @@ const responseHandler = require('../utils/responseHandler');
 class AnimalController {
     constructor() {
         this.db = JsonDatabase.getInstance('animals.json');
+        this.checkpointsDb = JsonDatabase.getInstance('checkpoints_data.json');
+        this.checkpointsInfoDb = JsonDatabase.getInstance('checkpoints.json');
     }
 
     async create(req, res) {
@@ -98,6 +100,45 @@ class AnimalController {
             responseHandler.sendError(res, 'Error al eliminar el animal');
         }
     }
+
+    async getAnimalsPositions(req, res) {
+        try {
+            console.log('📍 Solicitando posiciones de animales');
+
+            // Obtener datos de checkpoints
+            const checkpointsData = await this.checkpointsDb.readData();
+            const checkpointsInfo = await this.checkpointsInfoDb.readData();
+
+            // Obtener datos de animales
+            const animals = await this.db.readData();
+
+            // Mapear los datos al formato requerido
+            const positions = checkpointsInfo.map(checkpoint => {
+                // Buscar los animales asociados a este checkpoint
+                const checkpointData = checkpointsData.find(
+                    cd => cd.checkpointID === checkpoint.id
+                );
+
+                return {
+                    id: checkpoint.id,
+                    lat: checkpoint.lat,
+                    long: checkpoint.long,
+                    description: checkpoint.description,
+                    animals: checkpointData?.animals || []
+                };
+            });
+
+            console.log('📤 Enviando posiciones:', JSON.stringify(positions, null, 2));
+            
+            // Enviar la respuesta en el formato exacto requerido
+            responseHandler.sendJson(res, positions);
+
+        } catch (error) {
+            console.error('❌ Error al obtener posiciones:', error);
+            responseHandler.sendError(res, 'Error al obtener las posiciones de los animales');
+        }
+    }
+
 }
 
 module.exports = AnimalController;
