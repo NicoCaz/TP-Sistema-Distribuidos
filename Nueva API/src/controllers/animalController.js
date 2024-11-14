@@ -105,35 +105,50 @@ class AnimalController {
     async getAnimalsPositions(req, res) {
         try {
             console.log('📍 Solicitando posiciones de animales');
-
+    
             // Obtener datos de checkpoints
             const checkpointsData = await this.checkpointsDb.readData();
             const checkpointsInfo = await this.checkpointsInfoDb.readData();
-
-            // Obtener datos de animales
-            const animals = await this.db.readData();
-
+    
+            // Obtener datos de animales registrados
+            const registeredAnimals = await this.db.readData();
+            console.log('🔍 Animales registrados:', registeredAnimals);
+    
             // Mapear los datos al formato requerido
             const positions = checkpointsInfo.map(checkpoint => {
                 // Buscar los animales asociados a este checkpoint
                 const checkpointData = checkpointsData.find(
                     cd => cd.checkpointID === checkpoint.id
                 );
-
+    
+                // Filtrar solo los animales que están registrados en la base de datos
+                const registeredAnimalsAtCheckpoint = checkpointData?.animals?.filter(
+                    animalId => registeredAnimals.some(
+                        registeredAnimal => registeredAnimal.id === animalId
+                    )
+                ) || [];
+    
+                console.log(`📍 Checkpoint ${checkpoint.id} - Animales registrados:`, registeredAnimalsAtCheckpoint);
+    
                 return {
                     id: checkpoint.id,
                     lat: checkpoint.lat,
                     long: checkpoint.long,
                     description: checkpoint.description,
-                    animals: checkpointData?.animals || []
+                    animals: registeredAnimalsAtCheckpoint
                 };
             });
-
-            console.log('📤 Enviando posiciones:', JSON.stringify(positions, null, 2));
+    
+            // Filtrar checkpoints que tienen animales registrados
+            const positionsWithAnimals = positions.filter(
+                position => position.animals.length > 0
+            );
+    
+            console.log('📤 Enviando posiciones:', JSON.stringify(positionsWithAnimals, null, 2));
             
-            // Enviar la respuesta en el formato exacto requerido
-            responseHandler.sendJson(res, positions);
-
+            // Enviar la respuesta filtrada
+            responseHandler.sendJson(res, positionsWithAnimals);
+    
         } catch (error) {
             console.error('❌ Error al obtener posiciones:', error);
             responseHandler.sendError(res, 'Error al obtener las posiciones de los animales');
