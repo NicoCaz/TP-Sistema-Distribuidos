@@ -23,8 +23,8 @@ class MQTTClient {
         });
         this.client.on('message', async (topic, message) => {
             const aux=JSON.parse(message.toString());
-
-            const checkpointId=aux.checkpointId;
+            console.log(aux);
+            const checkpointId=aux.checkpointID;
             console.log(` 📩 Mensaje recibido en el tema ${topic}: ${checkpointId}`);    
             try {
                 await this.handleDataMessage(message, checkpointId);

@@ -9,7 +9,7 @@ const deviceRoutes = async (req, res) => {
     const id = url.pathname.split('/')[3];
 
     switch (true) {
-        case method === 'GET' && url.pathname === '/api/availableDevices':
+        case method === 'GET' && url.pathname === '/API/availableDevices':
             await controller.getAll(req, res);
             break;
         default:
