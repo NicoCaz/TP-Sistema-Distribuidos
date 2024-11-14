@@ -11,5 +11,9 @@ const saveCheckpoints = (checkpoints,filePath) => {
     fs.writeFileSync(filePath, JSON.stringify(checkpoints, null, 2));
   };
 
+  const getCheckpointById = (id) => {
+    const checkpoints = getCheckpoints(filePath);
+    return checkpoints.find(checkpoint => checkpoint.checkpointID === id);
+  };
 
-module.exports = {getCheckpoints,saveCheckpoints};
+module.exports = {getCheckpoints,saveCheckpoints,getCheckpointById};

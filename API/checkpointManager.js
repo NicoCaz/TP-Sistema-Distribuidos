@@ -48,14 +48,14 @@ const updateSMS = (jsonData) => {
           });
 
         // Encuentra el índice del objeto con el subID
-        let completedIndex = completedData.findIndex(data => data.checkpointID === subID);
+        let subIndex = completedData.findIndex(data => data.checkpointID === subID);
 
-        if (completedIndex === -1) {
+        if (subIndex === -1) {
           // Si no existe, agrega un nuevo objeto al array
           completedData.push({ ...checkpointData[index] });
         } else {
           // Si existe, actualiza el objeto existente para no tener redundancia de MAC
-          completedData[completedIndex] = { ...checkpointData[index] };
+          completedData[subIndex] = { ...checkpointData[index] };
         }
           checkpointData[index] = {
             packageNum: 0,

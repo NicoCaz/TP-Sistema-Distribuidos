@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const funcManager = require('..','./checkpointManager');
+const auxFuncCP = require('../helpers/auxFunctionsCP.js');
 
 const animalsFilePath = path.join(__dirname, '..', 'BBDD', 'animals.json');
 const checkpointsFilePath = path.join(__dirname, '..', 'BBDD', 'checkpoints.json');
@@ -64,24 +65,31 @@ const generateRandomCoordinates = () => {
 const routeAnimals = (req, res) => {
   console.log(`\n🔄 Nueva solicitud: ${req.method} ${req.url}`);
   const animals = getAnimals();
+  const dataCheckPoints = funcManager.getCompletedSMS();
+  //creo el formato con los datos actuales
 
   if (req.url === '/api/animals/position' && req.method === 'GET') {
     console.log('📍 Solicitando posiciones de animales');
-    
-    const positions = animals.map(animal => {
-      const coordinates = generateRandomCoordinates();
+
+    const dataPosition = dataCheckPoints.map(dataCheckpoint => {
+      const checkpoint = getCheckpointById(dataCheckpoint.checkpointID);
+      const coordinates = {
+        lat: checkpoint.lat,
+        long: checkpoint.long
+      };
+
       return {
-        id: animal.id,
+        idCP: dataCheckpoint.checkpointID,
         lat: coordinates.lat,
         long: coordinates.long,
-        nearCheckpoint: coordinates.nearCheckpoint,
-        description: `${animal.name || 'Sin nombre'}`
+        descriptionCP: checkpoint.description,
+        animals: dataCheckpoint.animals
       };
     });
 
-    console.log('📤 Enviando posiciones:', positions);
+    console.log('📤 Enviando posiciones:',dataPosition);
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ animals: positions }));
+    res.end(JSON.stringify({ dataPosition}));
   }
 
   else if (req.url === '/api/animals' && req.method === 'GET') {
