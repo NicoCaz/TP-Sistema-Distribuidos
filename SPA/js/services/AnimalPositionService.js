@@ -15,6 +15,7 @@ export class AnimalPositionService {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const positions = await response.json();
+            console.log('Positions:', positions);
             return positions;
         } catch (error) {
             console.error('Error al obtener posiciones de animales:', error);
