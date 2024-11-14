@@ -1,78 +1,150 @@
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
 
 const CHECKPOINT_FILE = 'checkpoint_data.json';
 
 class CheckpointHandler {
   constructor() {
-    this.filePath = path.join(__dirname,'../BBDD', CHECKPOINT_FILE);
+    this.filePath = path.join(__dirname, CHECKPOINT_FILE);
+    this.packageTracker = new Map();
+    this.fileStream = null;
   }
 
+  // Abrir el stream de datos
+  openStream() {
+    if (!this.fileStream) {
+      this.fileStream = fs.createWriteStream(this.filePath, { flags: 'r+' });
+      console.log('Stream de datos abierto');
+    }
+  }
+
+  // Cerrar el stream de datos
+  closeStream() {
+    return new Promise((resolve, reject) => {
+      if (this.fileStream) {
+        this.fileStream.end(() => {
+          this.fileStream.close((err) => {
+            if (err) {
+              console.error('Error al cerrar el stream:', err);
+              reject(err);
+            } else {
+              console.log('Stream de datos cerrado');
+              this.fileStream = null;
+              resolve();
+            }
+          });
+        });
+      } else {
+        resolve();
+      }
+    });
+  }
+
+  // Cargar datos del archivo
   async loadCheckpointData() {
     try {
-      const data = await fs.readFile(this.filePath, 'utf8');
+      if (!fs.existsSync(this.filePath)) {
+        await fs.promises.writeFile(this.filePath, JSON.stringify([]));
+      }
+      const data = await fs.promises.readFile(this.filePath, 'utf8');
       return JSON.parse(data);
     } catch (error) {
-      if (error.code === 'ENOENT') {
-        // Si el archivo no existe, retorna un array vacío
-        return [];
-      }
+      console.error('Error al cargar datos:', error);
+      return [];
+    }
+  }
+
+  // Guardar datos en el archivo
+  async saveCheckpointData(data) {
+    try {
+      this.openStream();
+      const jsonData = JSON.stringify(data, null, 2);
+      
+      return new Promise((resolve, reject) => {
+        this.fileStream.write(jsonData, async (err) => {
+          if (err) {
+            console.error('Error al escribir datos:', err);
+            reject(err);
+          } else {
+            // Si se han recibido todos los paquetes, cerrar el stream
+            if (this.isTransmissionComplete(data)) {
+              await this.closeStream();
+            }
+            resolve();
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Error al guardar datos:', error);
       throw error;
     }
   }
 
-  async saveCheckpointData(data) {
-    await fs.writeFile(this.filePath, JSON.stringify(data, null, 2), 'utf8');
-  }
-
-  removeAnimalFromOtherCheckpoints(checkpoints, currentCheckpointId, animal) {
-    return checkpoints.map(checkpoint => {
-      if (checkpoint.checkpointID !== currentCheckpointId) {
-        checkpoint.animals = checkpoint.animals.filter(a => a.id !== animal.id);
+  // Verificar si la transmisión está completa
+  isTransmissionComplete(data) {
+    for (const [checkpointID, tracker] of this.packageTracker.entries()) {
+      if (tracker.receivedPackages.size !== tracker.totalPackages) {
+        return false;
       }
-      return checkpoint;
-    });
+    }
+    return true;
   }
 
   async updateCheckpoint(jsonData) {
     try {
-      // Validar el formato de los datos de entrada
       if (!this.validateInputData(jsonData)) {
         throw new Error('Formato de datos inválido');
       }
 
-      let checkpoints = await this.loadCheckpointData();
-      const { checkpointID, animals } = jsonData;
+      const { checkpointID, packageNum, totalPackages, animals } = jsonData;
 
-      // Buscar el checkpoint existente
+      // Inicializar o actualizar el rastreador de paquetes
+      if (!this.packageTracker.has(checkpointID)) {
+        this.packageTracker.set(checkpointID, {
+          receivedPackages: new Set(),
+          totalPackages: totalPackages,
+          animals: []
+        });
+      }
+
+      const tracker = this.packageTracker.get(checkpointID);
+      tracker.receivedPackages.add(packageNum);
+
+      // Cargar datos existentes
+      let checkpoints = await this.loadCheckpointData();
       let checkpointIndex = checkpoints.findIndex(cp => cp.checkpointID === checkpointID);
 
-      // Procesar cada animal y removerlo de otros checkpoints
-      for (const animal of animals) {
-        checkpoints = this.removeAnimalFromOtherCheckpoints(checkpoints, checkpointID, animal);
-      }
-
-      if (checkpointIndex === -1) {
-        // Si el checkpoint no existe, crear uno nuevo
-        checkpoints.push({
-          checkpointID,
+      // Actualizar o crear nuevo checkpoint
+      const updatedCheckpoint = {
+        checkpointID,
+        animals: this.mergeAnimals(
+          checkpointIndex !== -1 ? checkpoints[checkpointIndex].animals : [],
           animals
-        });
+        ),
+        lastUpdate: new Date().toISOString()
+      };
+
+      if (checkpointIndex !== -1) {
+        checkpoints[checkpointIndex] = updatedCheckpoint;
       } else {
-        // Actualizar checkpoint existente
-        checkpoints[checkpointIndex] = {
-          checkpointID,
-          animals
-        };
+        checkpoints.push(updatedCheckpoint);
       }
 
-      // Guardar los cambios en el archivo
+      // Guardar los datos actualizados
       await this.saveCheckpointData(checkpoints);
+
+      const isComplete = tracker.receivedPackages.size === tracker.totalPackages;
       
       return {
         success: true,
-        message: `Checkpoint ${checkpointID} actualizado exitosamente`,
-        data: checkpoints
+        message: isComplete ? 
+          `Transmisión completa para checkpoint ${checkpointID}` : 
+          `Paquete ${packageNum}/${totalPackages} procesado para checkpoint ${checkpointID}`,
+        complete: isComplete,
+        progress: {
+          received: tracker.receivedPackages.size,
+          total: tracker.totalPackages
+        }
       };
 
     } catch (error) {
@@ -85,44 +157,32 @@ class CheckpointHandler {
     }
   }
 
+  mergeAnimals(existingAnimals, newAnimals) {
+    const animalMap = new Map(existingAnimals.map(a => [a.id, a]));
+    newAnimals.forEach(animal => {
+      animalMap.set(animal.id, animal);
+    });
+    return Array.from(animalMap.values());
+  }
+
   validateInputData(data) {
-    // Validar estructura básica
     if (!data || typeof data !== 'object') return false;
     if (!data.packageNum || typeof data.packageNum !== 'number') return false;
     if (!data.totalPackages || typeof data.totalPackages !== 'number') return false;
     if (!data.checkpointID || typeof data.checkpointID !== 'string') return false;
     if (!Array.isArray(data.animals)) return false;
 
-    // Validar cada animal en el array
     return data.animals.every(animal => 
       animal.id && typeof animal.id === 'string' &&
       typeof animal.rssi === 'number'
     );
   }
+
+  // Método para limpiar recursos al finalizar
+  async cleanup() {
+    await this.closeStream();
+    this.packageTracker.clear();
+  }
 }
-
-// Ejemplo de uso:
-/*
-const handler = new CheckpointHandler();
-const sampleData = {
-  packageNum: 1,
-  totalPackages: 1,
-  checkpointID: "8C:AA:B5:8B:F8:40",
-  animals: [
-    {
-      id: "02:b3:ec:c2:17:72",
-      rssi: -77
-    },
-    {
-      id: "2a:56:6f:52:50:7c",
-      rssi: -44
-    }
-  ]
-};
-
-handler.updateCheckpoint(sampleData)
-  .then(result => console.log(result))
-  .catch(error => console.error(error));
-*/
 
 module.exports = CheckpointHandler;
