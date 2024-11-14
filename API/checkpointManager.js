@@ -22,7 +22,7 @@ const updateSMS = (jsonData) => {
     
     if (index === -1) {
         checkpointData.push({
-        packageNum: 0,
+        packageNum: 1,
         checkpointID: subID,
         totalPackages: jsonData.totalPackages,
         contPackages: 1,
@@ -57,10 +57,10 @@ const updateSMS = (jsonData) => {
           // Si existe, actualiza el objeto existente para no tener redundancia de MAC
           completedData[subIndex] = { ...checkpointData[index] };
         }
-          checkpointData[index] = {
+          checkpointData[index] = {//ver si borrar no reiniciar
             packageNum: 0,
             checkpointID: subID,
-            totalPackages: 0,
+            totalPackages: jsonData.totalPackages,
             contPackages: 0,
             animals: []
           };
