@@ -12,7 +12,11 @@ class CheckpointHandler {
 
   openStream() {
     if (!this.fileStream) {
-      this.fileStream = fs.createWriteStream(this.filePath, { flags: 'r+' });
+      // Asegurarse de que el archivo exista y tenga un array válido
+      if (!fs.existsSync(this.filePath)) {
+        fs.writeFileSync(this.filePath, JSON.stringify([]));
+      }
+      this.fileStream = fs.createWriteStream(this.filePath, { flags: 'w' }); // Cambio a 'w' para sobrescribir
       console.log('Stream de datos abierto');
     }
   }
@@ -44,13 +48,18 @@ class CheckpointHandler {
         await fs.promises.writeFile(this.filePath, JSON.stringify([]));
       }
       const data = await fs.promises.readFile(this.filePath, 'utf8');
-      return JSON.parse(data);
+      try {
+        return JSON.parse(data);
+      } catch (parseError) {
+        console.error('Error al parsear JSON:', parseError);
+        return [];
+      }
     } catch (error) {
       console.error('Error al cargar datos:', error);
       return [];
     }
   }
-
+  
   getCheckpointDataSync() {
     try {
       if (!fs.existsSync(this.filePath)) {
@@ -63,11 +72,13 @@ class CheckpointHandler {
       return [];
     }
   }
-
+  
   async saveCheckpointData(data) {
     try {
       this.openStream();
-      const jsonData = JSON.stringify(data, null, 2);
+      // Asegurarse de que data sea un array
+      const dataToSave = Array.isArray(data) ? data : [];
+      const jsonData = JSON.stringify(dataToSave, null, 2);
       
       return new Promise((resolve, reject) => {
         this.fileStream.write(jsonData, async (err) => {
@@ -75,7 +86,7 @@ class CheckpointHandler {
             console.error('Error al escribir datos:', err);
             reject(err);
           } else {
-            if (this.isTransmissionComplete(data)) {
+            if (this.isTransmissionComplete(dataToSave)) {
               await this.closeStream();
             }
             resolve();
@@ -116,9 +127,16 @@ class CheckpointHandler {
       const tracker = this.packageTracker.get(checkpointID);
       tracker.receivedPackages.add(packageNum);
 
+      // Cargar datos existentes
       let checkpoints = await this.loadCheckpointData();
+      if (!Array.isArray(checkpoints)) {
+        checkpoints = [];
+      }
+
+      // Buscar el checkpoint existente
       let checkpointIndex = checkpoints.findIndex(cp => cp.checkpointID === checkpointID);
 
+      // Actualizar o crear nuevo checkpoint
       const updatedCheckpoint = {
         checkpointID,
         animals: this.mergeAnimals(
@@ -133,6 +151,7 @@ class CheckpointHandler {
         checkpoints.push(updatedCheckpoint);
       }
 
+      // Guardar los datos actualizados
       await this.saveCheckpointData(checkpoints);
 
       const isComplete = tracker.receivedPackages.size === tracker.totalPackages;
@@ -160,10 +179,25 @@ class CheckpointHandler {
   }
 
   mergeAnimals(existingAnimals, newAnimals) {
-    const animalMap = new Map(existingAnimals.map(a => [a.id, a]));
-    newAnimals.forEach(animal => {
-      animalMap.set(animal.id, animal);
+    const animalMap = new Map();
+    
+    // Convertir existingAnimals a array si no lo es
+    const existingArray = Array.isArray(existingAnimals) ? existingAnimals : [];
+    
+    // Añadir animales existentes al mapa
+    existingArray.forEach(animal => {
+      if (animal && animal.id) {
+        animalMap.set(animal.id, animal);
+      }
     });
+    
+    // Actualizar o añadir nuevos animales
+    newAnimals.forEach(animal => {
+      if (animal && animal.id) {
+        animalMap.set(animal.id, animal);
+      }
+    });
+    
     return Array.from(animalMap.values());
   }
 
@@ -175,7 +209,7 @@ class CheckpointHandler {
     if (!Array.isArray(data.animals)) return false;
 
     return data.animals.every(animal => 
-      animal.id && typeof animal.id === 'string' &&
+      animal && animal.id && typeof animal.id === 'string' &&
       typeof animal.rssi === 'number'
     );
   }
@@ -187,3 +221,5 @@ class CheckpointHandler {
 }
 
 module.exports = CheckpointHandler;
+
+
