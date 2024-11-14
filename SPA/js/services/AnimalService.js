@@ -66,13 +66,13 @@ export class AnimalService {
             const data = await response.json();
             console.log('Datos recibidos del servidor:', data);
 
-            const devices = Array.isArray(data.devices) ? data.devices : [];
-            if (devices.length === 0) {
+            console.log('Dispositivos encontrados:', data.length);
+            if (data.length === 0) {
                 console.log('No se encontraron dispositivos en el servidor, usando dispositivos de prueba');
                 return this.mockDevices;
             }
 
-            return devices;
+            return data;
 
         } catch (error) {
             if (error.message.includes('Timeout')) {
