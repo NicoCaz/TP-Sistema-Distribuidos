@@ -22,7 +22,6 @@ const getAnimals = () => {
 
 
 
-
 const routeAnimals = (req, res) => {
   console.log(`\n🔄 Nueva solicitud: ${req.method} ${req.url}`);
   const animals = getAnimals();

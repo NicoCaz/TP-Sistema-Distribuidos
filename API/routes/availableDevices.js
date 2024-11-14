@@ -1,11 +1,12 @@
 const { getCompletedSMS: getCompletedListDevices } = require('../checkpointManager');
 const auxFunc = require('../helpers/auxDataValidation.js');
-
+const CheckpointHandler = require('../helpers/auxMqtt');
+const handler = new CheckpointHandler();
 const availableDevices = (req, res) => {
   console.log(`\n🔄 Nueva solicitud: ${req.method} ${req.url}`);
   
   console.log('📂 Intentando obtener lista de dispositivos completados');
-  const completedData = getCompletedListDevices();
+  const completedData = handler.getCheckpointDataSync();
   
   if (req.url === '/api/availableDevices' && req.method === 'GET') {
     console.log('📱 Procesando solicitud de dispositivos disponibles');
