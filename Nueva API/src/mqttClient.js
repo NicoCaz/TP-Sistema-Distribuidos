@@ -13,19 +13,21 @@ class MQTTClient {
         this.client.on('connect', () => {
             console.log('🔗 Conectado a Mosquitto MQTT Broker');
             // Solo suscribirse al tema de datos
-            this.client.subscribe('checkpoint/+/data', (err) => {
+            this.client.subscribe('checkpoint', (err) => {
                 if (!err) {
-                    console.log('✅ Suscrito a checkpoint/+/data');
+                    console.log('✅ Suscrito a topic checkpoint');
                 } else {
                     console.error('❌ Error al suscribirse:', err);
                 }
             });
         });
-
+//"packageNum":1,"totalPackages":1,"checkpointID":"08:A6:F7:A1:8E:80","animals":[{"id":"2f:cf:7a:a8:9a:ac","rssi":-59},{"id":"7c:a4:49:17:c0:ee","rssi":-72}]}
         this.client.on('message', async (topic, message) => {
-            const checkpointId = topic.split('/')[1];
-            console.log(`📩 Mensaje recibido de ${checkpointId}`);
-
+            
+            console.log(` 📩 Mensaje recibido en el tema ${topic}: ${JSON.parse(message.toString())}`);
+            const checkpointId = message.checkpointID;
+            let jsonData = JSON.parse(message.toString());
+            
             try {
                 await this.handleDataMessage(message, checkpointId);
             } catch (error) {
