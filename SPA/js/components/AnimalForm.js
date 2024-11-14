@@ -35,8 +35,8 @@ export class AnimalForm {
         });
     }
 
-    setDevices(devices) {
-        console.log('Configurando dispositivos en el formulario:', devices);
+    setDevices(response) {
+        console.log('Datos recibidos en setDevices:', response);
         const deviceSelect = this.elements.device;
         
         // Guardar el valor actual antes de limpiar
@@ -45,22 +45,30 @@ export class AnimalForm {
         // Limpiar opciones existentes
         deviceSelect.innerHTML = '<option value="">Seleccione un dispositivo</option>';
         
-        // Agregar nuevos dispositivos
-        if (Array.isArray(devices) && devices.length > 0) {
-            devices.forEach(device => {
+        // Verificar si tenemos el array de devices y tiene elementos
+        if (response && response.devices && response.devices.length > 0) {
+            console.log(`Procesando ${response.devices.length} dispositivos`);
+            
+            response.devices.forEach(device => {
                 const option = document.createElement('option');
                 option.value = device;
                 option.textContent = device;
                 deviceSelect.appendChild(option);
             });
-            console.log(`Se agregaron ${devices.length} dispositivos al select`);
+            
+            console.log(`Se agregaron ${response.devices.length} dispositivos al select`);
 
-            // Restaurar el valor seleccionado si existía
-            if (currentValue) {
+            // Restaurar el valor seleccionado si existía y está disponible
+            if (currentValue && response.devices.includes(currentValue)) {
                 deviceSelect.value = currentValue;
             }
         } else {
-            console.warn('No se recibieron dispositivos para agregar al formulario');
+            console.warn('No hay dispositivos disponibles para agregar');
+            const option = document.createElement('option');
+            option.value = "";
+            option.textContent = "No hay dispositivos disponibles";
+            option.disabled = true;
+            deviceSelect.appendChild(option);
         }
     }
 
@@ -70,7 +78,6 @@ export class AnimalForm {
         this.elements.name.value = animal.name;
         this.elements.description.value = animal.description || '';
         this.elements.device.value = animal.id;
-        // Ya no deshabilitamos el select de dispositivos
         this.elements.submitBtn.textContent = 'Actualizar Animal';
         this.elements.cancelBtn.classList.remove('hidden');
     }

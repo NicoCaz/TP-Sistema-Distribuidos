@@ -4,10 +4,10 @@ require('dotenv').config();
 
 const routes = {
     '/api/animals': require('./routes/animalRoutes'),
-    '/api/checkpoints': require('./routes/checkpointsRoutes')
+    '/api/checkpoints': require('./routes/checkpointsRoutes'),
   //  '/api/login': require('./routes/loginRoutes'),
   //  '/api/refresh': require('./routes/refreshRoutes'),
-  //  '/api/availableDevices': require('./routes/deviceRoutes')
+    '/api/availableDevices': require('./routes/deviceRoutes')
 };
 
 const server = http.createServer(async (req, res) => {
