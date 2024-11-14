@@ -22,7 +22,9 @@ class MQTTClient {
             });
         });
         this.client.on('message', async (topic, message) => {
-            const checkpointId=JSON.parse(message.toString());
+            const aux=JSON.parse(message.toString());
+
+            const checkpointId=aux.checkpointId;
             console.log(` 📩 Mensaje recibido en el tema ${topic}: ${checkpointId}`);    
             try {
                 await this.handleDataMessage(message, checkpointId);
