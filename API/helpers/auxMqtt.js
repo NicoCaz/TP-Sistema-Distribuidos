@@ -5,12 +5,11 @@ const CHECKPOINT_FILE = 'checkpoint_data.json';
 
 class CheckpointHandler {
   constructor() {
-    this.filePath = path.join(__dirname, CHECKPOINT_FILE);
+    this.filePath = path.join(__dirname, '../BBDD', CHECKPOINT_FILE);
     this.packageTracker = new Map();
     this.fileStream = null;
   }
 
-  // Abrir el stream de datos
   openStream() {
     if (!this.fileStream) {
       this.fileStream = fs.createWriteStream(this.filePath, { flags: 'r+' });
@@ -18,7 +17,6 @@ class CheckpointHandler {
     }
   }
 
-  // Cerrar el stream de datos
   closeStream() {
     return new Promise((resolve, reject) => {
       if (this.fileStream) {
@@ -40,7 +38,6 @@ class CheckpointHandler {
     });
   }
 
-  // Cargar datos del archivo
   async loadCheckpointData() {
     try {
       if (!fs.existsSync(this.filePath)) {
@@ -54,7 +51,6 @@ class CheckpointHandler {
     }
   }
 
-  // Guardar datos en el archivo
   async saveCheckpointData(data) {
     try {
       this.openStream();
@@ -66,7 +62,6 @@ class CheckpointHandler {
             console.error('Error al escribir datos:', err);
             reject(err);
           } else {
-            // Si se han recibido todos los paquetes, cerrar el stream
             if (this.isTransmissionComplete(data)) {
               await this.closeStream();
             }
@@ -80,7 +75,6 @@ class CheckpointHandler {
     }
   }
 
-  // Verificar si la transmisión está completa
   isTransmissionComplete(data) {
     for (const [checkpointID, tracker] of this.packageTracker.entries()) {
       if (tracker.receivedPackages.size !== tracker.totalPackages) {
@@ -98,7 +92,6 @@ class CheckpointHandler {
 
       const { checkpointID, packageNum, totalPackages, animals } = jsonData;
 
-      // Inicializar o actualizar el rastreador de paquetes
       if (!this.packageTracker.has(checkpointID)) {
         this.packageTracker.set(checkpointID, {
           receivedPackages: new Set(),
@@ -110,18 +103,15 @@ class CheckpointHandler {
       const tracker = this.packageTracker.get(checkpointID);
       tracker.receivedPackages.add(packageNum);
 
-      // Cargar datos existentes
       let checkpoints = await this.loadCheckpointData();
       let checkpointIndex = checkpoints.findIndex(cp => cp.checkpointID === checkpointID);
 
-      // Actualizar o crear nuevo checkpoint
       const updatedCheckpoint = {
         checkpointID,
         animals: this.mergeAnimals(
           checkpointIndex !== -1 ? checkpoints[checkpointIndex].animals : [],
           animals
-        ),
-        lastUpdate: new Date().toISOString()
+        )
       };
 
       if (checkpointIndex !== -1) {
@@ -130,7 +120,6 @@ class CheckpointHandler {
         checkpoints.push(updatedCheckpoint);
       }
 
-      // Guardar los datos actualizados
       await this.saveCheckpointData(checkpoints);
 
       const isComplete = tracker.receivedPackages.size === tracker.totalPackages;
@@ -178,7 +167,6 @@ class CheckpointHandler {
     );
   }
 
-  // Método para limpiar recursos al finalizar
   async cleanup() {
     await this.closeStream();
     this.packageTracker.clear();
