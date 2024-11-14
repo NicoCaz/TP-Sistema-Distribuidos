@@ -4,8 +4,8 @@ const responseHandler = require('../utils/responseHandler');
 class AnimalController {
     constructor() {
         this.db = JsonDatabase.getInstance('animals.json');
-        this.checkpointsDb = JsonDatabase.getInstance('checkpoints_data.json');
-        this.checkpointsInfoDb = JsonDatabase.getInstance('checkpoints.json');
+        this.checkpointDataDb  = JsonDatabase.getInstance('checkpoints_data.json');
+        this.checkpointsDb  = JsonDatabase.getInstance('checkpoints.json');
     }
 
     async create(req, res) {
@@ -102,59 +102,56 @@ class AnimalController {
         }
     }
 
-    async getAnimalsPositions(req, res) {
-        try {
-            console.log('📍 Solicitando posiciones de animales');
-    
-            // Obtener datos de checkpoints
-            const checkpointsData = await this.checkpointsDb.readData();
-            const checkpointsInfo = await this.checkpointsInfoDb.readData();
-    
-            // Obtener datos de animales registrados
-            const registeredAnimals = await this.db.readData();
-            console.log('🔍 Animales registrados:', registeredAnimals);
-    
-            // Mapear los datos al formato requerido
-            const positions = checkpointsInfo.map(checkpoint => {
-                // Buscar los animales asociados a este checkpoint
-                const checkpointData = checkpointsData.find(
-                    cd => cd.checkpointID === checkpoint.id
-                );
-    
-                // Filtrar solo los animales que están registrados en la base de datos
-                const registeredAnimalsAtCheckpoint = checkpointData?.animals?.filter(
-                    animalId => registeredAnimals.some(
-                        registeredAnimal => registeredAnimal.id === animalId
-                    )
-                ) || [];
-    
-                console.log(`📍 Checkpoint ${checkpoint.id} - Animales registrados:`, registeredAnimalsAtCheckpoint);
-    
-                return {
-                    id: checkpoint.id,
-                    lat: checkpoint.lat,
-                    long: checkpoint.long,
-                    description: checkpoint.description,
-                    animals: registeredAnimalsAtCheckpoint
-                };
-            });
-    
-            // Filtrar checkpoints que tienen animales registrados
-            const positionsWithAnimals = positions.filter(
-                position => position.animals.length > 0
-            );
-    
-            console.log('📤 Enviando posiciones:', JSON.stringify(positionsWithAnimals, null, 2));
-            
-            // Enviar la respuesta filtrada
-            responseHandler.sendJson(res, positionsWithAnimals);
-    
-        } catch (error) {
-            console.error('❌ Error al obtener posiciones:', error);
-            responseHandler.sendError(res, 'Error al obtener las posiciones de los animales');
-        }
-    }
+ 
+async getAnimalsPositions(req, res) {
+    try {
+        console.log('📍 Solicitando posiciones de animales');
+        
+        // Leer datos de los 3 archivos JSON disponibles
+        const checkpoints = await this.checkpointsDb.readData();
+        const registeredAnimals = await this.db.readData();
+        const checkpointData = await this.checkpointDataDb.readData();
 
+        console.log('🔍 Checkpoints totales:', checkpoints.length);
+        console.log('🔍 Animales registrados:', registeredAnimals.length);
+        
+        const positions = checkpoints.map(checkpoint => {
+            // Obtener los datos de los animales para este checkpoint desde checkpoint_data.json
+            const checkpointInfo = checkpointData.find(
+                data => data.checkpointID === checkpoint.id
+            );
+            
+            // Obtener la lista de animales del checkpoint y filtrar los que están registrados
+            const checkpointAnimals = checkpointInfo?.animals || [];
+            const filteredAnimals = checkpointAnimals.filter(animalId => 
+                registeredAnimals.some(animal => animal.id === animalId)
+            );
+
+            console.log(`📍 Checkpoint ${checkpoint.id} - Animales registrados: ${filteredAnimals.length}`);
+
+            return {
+                id: checkpoint.id,
+                lat: checkpoint.lat,
+                long: checkpoint.long,
+                description: checkpoint.description,
+                animals: filteredAnimals.map(animalId => {
+                    const animalInfo = registeredAnimals.find(
+                        animal => animal.id === animalId
+                    );
+                    return animalInfo;
+                }).filter(animal => animal !== undefined) // Eliminar cualquier animal no encontrado
+            };
+        });
+
+        console.log('📤 Enviando posiciones con info completa:', 
+            JSON.stringify(positions, null, 2));
+        
+        responseHandler.sendJson(res, positions);
+    } catch (error) {
+        console.error('❌ Error al obtener posiciones:', error);
+        responseHandler.sendError(res, 'Error al obtener las posiciones de los animales');
+    }
+}
 }
 
 module.exports = AnimalController;
