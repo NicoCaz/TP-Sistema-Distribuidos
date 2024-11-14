@@ -1,10 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const funcManager = require('../checkpointManager');
 const auxFuncCP = require('../helpers/auxFunctionsCP.js');
-
+const CheckpointHandler = require('../helpers/auxMqtt');
+const handler = new CheckpointHandler();
 const animalsFilePath = path.join(__dirname, '..', 'BBDD', 'animals.json');
-const checkpointsFilePath = path.join(__dirname, '..', 'BBDD', 'checkpoints.json');
 
 // Radio máximo de distancia en grados (aproximadamente 100-200 metros)
 const MAX_RADIUS = 0.002;
@@ -21,23 +20,13 @@ const getAnimals = () => {
   }
 };
 
-const getCheckpoints = () => {
-  console.log('📂 Intentando leer checkpoints');
-  try {
-    const data = fs.readFileSync(checkpointsFilePath, 'utf8');
-    const { checkpoints } = JSON.parse(data);
-    return checkpoints;
-  } catch (error) {
-    console.error('❌ Error al leer checkpoints:', error.message);
-    throw error;
-  }
-};
+
 
 
 const routeAnimals = (req, res) => {
   console.log(`\n🔄 Nueva solicitud: ${req.method} ${req.url}`);
   const animals = getAnimals();
-  const dataCheckPoints = funcManager.getCompletedSMS();
+  const dataCheckPoints = handler.loadCheckpointData();
   //creo el formato con los datos actuales
 
   if (req.url === '/api/animals/position' && req.method === 'GET') {
