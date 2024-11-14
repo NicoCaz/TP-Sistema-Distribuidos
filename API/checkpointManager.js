@@ -10,12 +10,16 @@ if (!fs.existsSync(dirPath)){
     fs.mkdirSync(dirPath, { recursive: true });
 }
 
-// Cargar datos existentes o inicializar si el archivo no existe
+// Inicializar checkpointData como un array vacío
 let checkpointData = [];
+
+// Cargar datos existentes o mantener el array vacío si el archivo no existe
 try {
     if (fs.existsSync(filePath)) {
         const fileContent = fs.readFileSync(filePath, 'utf8');
-        checkpointData = JSON.parse(fileContent);
+        const parsedData = JSON.parse(fileContent);
+        // Verificar que los datos cargados sean un array
+        checkpointData = Array.isArray(parsedData) ? parsedData : [];
     }
 } catch (error) {
     console.error('Error al cargar el archivo:', error);
@@ -24,7 +28,9 @@ try {
 
 const saveToFile = () => {
     try {
-        fs.writeFileSync(filePath, JSON.stringify(checkpointData, null, 2));
+        // Asegurarse de que checkpointData sea un array antes de guardar
+        const dataToSave = Array.isArray(checkpointData) ? checkpointData : [];
+        fs.writeFileSync(filePath, JSON.stringify(dataToSave, null, 2));
         console.log('Datos guardados en', filePath);
     } catch (error) {
         console.error('Error al guardar los datos:', error);
@@ -37,6 +43,11 @@ const updateSMS = (jsonData) => {
         return null;
     }
 
+    // Asegurarse de que checkpointData sea un array
+    if (!Array.isArray(checkpointData)) {
+        checkpointData = [];
+    }
+
     const checkpointIndex = checkpointData.findIndex(
         cp => cp.checkpointID === jsonData.checkpointID
     );
@@ -47,7 +58,7 @@ const updateSMS = (jsonData) => {
             checkpointID: jsonData.checkpointID,
             packages: [{
                 packageNum: jsonData.packageNum,
-                animals: jsonData.animals
+                animals: jsonData.animals || []
             }],
             totalPackages: jsonData.totalPackages,
             receivedPackages: 1,
@@ -55,10 +66,20 @@ const updateSMS = (jsonData) => {
         };
         checkpointData.push(newCheckpoint);
         saveToFile();
+        
+        // Si solo hay un paquete total, devolver los datos completos
+        if (newCheckpoint.totalPackages === 1) {
+            return getCompleteCheckpointData(newCheckpoint);
+        }
     } else {
         // Checkpoint existente
         const checkpoint = checkpointData[checkpointIndex];
         
+        // Asegurarse de que packages sea un array
+        if (!Array.isArray(checkpoint.packages)) {
+            checkpoint.packages = [];
+        }
+
         // Verificar si este paquete ya fue recibido
         const packageExists = checkpoint.packages.some(
             pkg => pkg.packageNum === jsonData.packageNum
@@ -67,9 +88,9 @@ const updateSMS = (jsonData) => {
         if (!packageExists) {
             checkpoint.packages.push({
                 packageNum: jsonData.packageNum,
-                animals: jsonData.animals
+                animals: jsonData.animals || []
             });
-            checkpoint.receivedPackages += 1;
+            checkpoint.receivedPackages = (checkpoint.receivedPackages || 0) + 1;
             checkpoint.lastUpdate = new Date().toISOString();
             
             // Ordenar paquetes por número
@@ -88,9 +109,13 @@ const updateSMS = (jsonData) => {
 };
 
 const getCompleteCheckpointData = (checkpoint) => {
+    if (!checkpoint || !Array.isArray(checkpoint.packages)) {
+        return null;
+    }
+
     // Combinar todos los animales de todos los paquetes
     const allAnimals = checkpoint.packages.reduce((acc, pkg) => {
-        return acc.concat(pkg.animals);
+        return acc.concat(Array.isArray(pkg.animals) ? pkg.animals : []);
     }, []);
 
     // Eliminar duplicados basados en el ID del animal
@@ -106,12 +131,18 @@ const getCompleteCheckpointData = (checkpoint) => {
 };
 
 const getCheckpointData = () => {
-    return checkpointData;
+    return Array.isArray(checkpointData) ? checkpointData : [];
 };
 
 const getCompletedListDevices = () => {
+    if (!Array.isArray(checkpointData)) {
+        return [];
+    }
+
     const allAnimals = checkpointData.flatMap(checkpoint => 
-        checkpoint.packages.flatMap(pkg => pkg.animals)
+        Array.isArray(checkpoint.packages) 
+            ? checkpoint.packages.flatMap(pkg => Array.isArray(pkg.animals) ? pkg.animals : [])
+            : []
     );
     
     // Eliminar duplicados basados en el ID del animal
