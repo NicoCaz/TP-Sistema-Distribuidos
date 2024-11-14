@@ -3,38 +3,31 @@ const MQTTController = require('./controllers/MQTTController');
 
 class MQTTClient {
     constructor() {
-        this.client = mqtt.connect(process.env.MQTT_BROKER_URL);
+        this.client = mqtt.connect(process.env.MQTT_BROKER_URL || 'mqtt://192.168.0.4:1883');
         this.controller = new MQTTController();
-        this.activeCheckpoints = new Map(); 
-        this.connectionTimestamps = new Map(); 
+        this.activeCheckpoints = new Map();
         this.setupEventHandlers();
-        this.startHealthCheck();
     }
 
     setupEventHandlers() {
         this.client.on('connect', () => {
             console.log('🔗 Conectado a Mosquitto MQTT Broker');
-            this.client.subscribe('checkpoint/+/data');
-            this.client.subscribe('checkpoint/+/status');
-            this.client.subscribe('checkpoint/+/heartbeat');
+            // Solo suscribirse al tema de datos
+            this.client.subscribe('checkpoint/+/data', (err) => {
+                if (!err) {
+                    console.log('✅ Suscrito a checkpoint/+/data');
+                } else {
+                    console.error('❌ Error al suscribirse:', err);
+                }
+            });
         });
 
         this.client.on('message', async (topic, message) => {
-            const [prefix, checkpointId, messageType] = topic.split('/');
-            console.log(`📩 Mensaje recibido de ${checkpointId} - Tipo: ${messageType}`);
+            const checkpointId = topic.split('/')[1];
+            console.log(`📩 Mensaje recibido de ${checkpointId}`);
 
             try {
-                switch (messageType) {
-                    case 'data':
-                        await this.handleDataMessage(message, checkpointId);
-                        break;
-                    case 'status':
-                        await this.handleStatusMessage(message, checkpointId);
-                        break;
-                    case 'heartbeat':
-                        this.updateCheckpointStatus(checkpointId);
-                        break;
-                }
+                await this.handleDataMessage(message, checkpointId);
             } catch (error) {
                 console.error(`❌ Error procesando mensaje de ${checkpointId}:`, error);
             }
@@ -45,95 +38,38 @@ class MQTTClient {
         });
     }
 
-    updateCheckpointStatus(checkpointId) {
-        const now = Date.now();
-        this.connectionTimestamps.set(checkpointId, now);
-        
-        if (!this.activeCheckpoints.has(checkpointId)) {
-            this.activeCheckpoints.set(checkpointId, {
-                status: 'active',
-                lastSeen: now,
-                messageCount: 0
-            });
-            console.log(`✨ Nuevo checkpoint conectado: ${checkpointId}`);
-        }
-
-        const checkpointInfo = this.activeCheckpoints.get(checkpointId);
-        checkpointInfo.lastSeen = now;
-        checkpointInfo.messageCount++;
-    }
-
-    startHealthCheck() {
-        // Verificar el estado de los checkpoints cada 30 segundos
-        setInterval(() => {
-            const now = Date.now();
-            this.activeCheckpoints.forEach((info, checkpointId) => {
-                const lastSeen = this.connectionTimestamps.get(checkpointId);
-                // Si no se ha visto en 1 minuto, considerar desconectado
-                if (now - lastSeen > 60000) {
-                    this.handleCheckpointDisconnection(checkpointId);
-                }
-            });
-        }, 30000);
-    }
-
     async handleDataMessage(message, checkpointId) {
         try {
             const jsonData = JSON.parse(message.toString());
-            this.updateCheckpointStatus(checkpointId);
+            
+            // Registrar checkpoint activo
+            this.activeCheckpoints.set(checkpointId, new Date());
 
             console.log(`📦 Datos recibidos de ${checkpointId}:`, {
-                packageNum: jsonData.packageNum,
-                totalPackages: jsonData.totalPackages,
+                checkpointID: checkpointId,
                 animalsCount: jsonData.animals?.length
             });
 
+            // Procesar datos con el controlador
             const result = await this.controller.updateCheckpoint(jsonData);
             
             if (result.success) {
-                this.publishResponse(checkpointId, {
-                    status: 'success',
-                    message: result.message
-                });
+                console.log(`✅ Datos de ${checkpointId} procesados correctamente`);
             } else {
                 console.error(`❌ Error procesando datos de ${checkpointId}:`, result.message);
-                this.publishError(checkpointId, result.message);
             }
 
         } catch (error) {
             console.error(`❌ Error procesando mensaje de ${checkpointId}:`, error);
-            this.publishError(checkpointId, 'Error procesando datos');
         }
-    }
-
-    publishResponse(checkpointId, response) {
-        const topic = `checkpoint/${checkpointId}/response`;
-        this.publish(topic, JSON.stringify(response));
-    }
-
-    publishError(checkpointId, error) {
-        const topic = `checkpoint/${checkpointId}/error`;
-        this.publish(topic, JSON.stringify({ error }));
-    }
-
-    publish(topic, message) {
-        this.client.publish(topic, message, { qos: 1 }, (err) => {
-            if (err) {
-                console.error(`❌ Error publicando en ${topic}:`, err);
-            } else {
-                console.log(`📤 Mensaje publicado en ${topic}`);
-            }
-        });
     }
 
     getActiveCheckpoints() {
         const checkpoints = [];
-        this.activeCheckpoints.forEach((info, id) => {
+        this.activeCheckpoints.forEach((lastSeen, id) => {
             checkpoints.push({
                 id,
-                lastSeen: new Date(info.lastSeen).toISOString(),
-                messageCount: info.messageCount,
-                status: info.status
+                lastSeen: lastSeen.toISOString()
             });
         });
         return checkpoints;
@@ -142,16 +78,8 @@ class MQTTClient {
     async disconnect() {
         try {
             console.log('👋 Iniciando desconexión...');
-            
-            // Desconectar todos los checkpoints activos
-            const disconnectionPromises = Array.from(this.activeCheckpoints.keys())
-                .map(checkpointId => this.handleCheckpointDisconnection(checkpointId));
-            
-            await Promise.all(disconnectionPromises);
-            
-            this.activeCheckpoints.clear();
-            this.connectionTimestamps.clear();
             this.client.end();
+            this.activeCheckpoints.clear();
             console.log('✅ Desconexión completada');
         } catch (error) {
             console.error('❌ Error durante la desconexión:', error);
@@ -162,10 +90,3 @@ class MQTTClient {
 
 const mqttClient = new MQTTClient();
 module.exports = mqttClient;
-
-
-
-
-
-
-
