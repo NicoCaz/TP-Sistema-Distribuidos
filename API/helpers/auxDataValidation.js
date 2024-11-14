@@ -2,9 +2,16 @@ const fs = require('fs');
 const path = require('path');
 
 const filePath = path.join(__dirname, '..', 'BBDD','checkpoints.json');
+const filePathAnimal = path.join(__dirname, '..', 'BBDD','animals.json');
+
 
 const getCheckpoint = () => {
   const data = fs.readFileSync(filePath, 'utf8');
+  const jsonData = JSON.parse(data);
+  return jsonData;//jsonData es un array
+};
+const getAnimals = () => {
+  const data = fs.readFileSync(filePathAnimal, 'utf8');
   const jsonData = JSON.parse(data);
   return jsonData;//jsonData es un array
 };
@@ -16,5 +23,13 @@ const valCheckpoint = (checkpointID) => {
   return check;
 };
 
-module.exports = {getCheckpoint, valCheckpoint };
+const notValidateAnimal = (id) => {
+  const animal = getAnimals();
+  const check = animal.find((check) => check.id === id);
+  if (!check) return true;
+  else  return false;
+};
+
+
+module.exports = {getCheckpoint, valCheckpoint,notValidateAnimal };
 

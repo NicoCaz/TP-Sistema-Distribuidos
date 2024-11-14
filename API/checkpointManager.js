@@ -85,7 +85,7 @@ let lotePrueba = [
     animals: [
       { id: 'a1', type: 'dog', name: 'Buddy' },
       { id: 'a2', type: 'cat', name: 'Whiskers' },
-      { id: 'a3', type: 'bird', name: 'Tweety' }
+      { id: 'test', type: 'bird', name: 'Tweety' }
     ]
   },
   {
