@@ -4,9 +4,9 @@ const mqttClient = require('./mqttClient'); // Importamos el cliente MQTT
 
 // Mapa de rutas HTTP
 const routes = {
-    '/api/animals': require('./routes/animalRoutes'),
-    '/api/checkpoints': require('./routes/checkpointsRoutes'),
-    '/api/availableDevices': require('./routes/deviceRoutes')
+    '/API/animals': require('./routes/animalRoutes'),
+    '/API/checkpoints': require('./routes/checkpointsRoutes'),
+    '/API/availableDevices': require('./routes/deviceRoutes')
 };
 
 class Server {
