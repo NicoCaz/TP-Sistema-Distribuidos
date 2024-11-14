@@ -1,126 +1,127 @@
 const fs = require('fs');
 const path = require('path');
 const auxFunc = require('./helpers/auxDataValidation.js');
-//const auxFunc = require('./helpers/auxFunctionsCP.js');
 
 const filePath = path.join(__dirname, 'BBDD', 'checkpoint_data.json');
 
-let checkpointData = [{
-  packageNum: 0,  //si valido por packagenum no consideraria si se pierden intermedios?
-  checkpointID: '',
-  totalPackages: 0,
-  contPackages: 0,
-  animals: []
-}];
-let completedData = []; // Variable para almacenar el sms completo
+// Asegurarse de que el directorio BBDD existe
+const dirPath = path.join(__dirname, 'BBDD');
+if (!fs.existsSync(dirPath)){
+    fs.mkdirSync(dirPath, { recursive: true });
+}
 
-const updateSMS = (jsonData) => {
- if (auxFunc.valCheckpoint(jsonData.checkpointID)) {//valido que exist
-  
-    const subID = jsonData.checkpointID;
-    let index  = checkpointData.findIndex(checkpoint => checkpoint.checkpointID === subID);
-    
-    if (index === -1) {
-        checkpointData.push({
-        packageNum: 1,
-        checkpointID: subID,
-        totalPackages: jsonData.totalPackages,
-        contPackages: 1,
-        animals: jsonData.animals
-      });
-    }//si no existe el checkpoint
+// Cargar datos existentes o inicializar si el archivo no existe
+let checkpointData = [];
+try {
+    if (fs.existsSync(filePath)) {
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        checkpointData = JSON.parse(fileContent);
+    }
+} catch (error) {
+    console.error('Error al cargar el archivo:', error);
+    checkpointData = [];
+}
 
-    else{//cuando existe
-      
-
-        checkpointData[index].contPackages += 1;//que pasaria si espera recibir 5 sms y se pierde el 3ro
-        checkpointData[index].animals = checkpointData[index].animals.concat(jsonData.animals);
-
-        if (checkpointData[index].contPackages === checkpointData[index].totalPackages) {
-          console.log('Todos los paquetes recibidos:', checkpointData[index]);
-
-          fs.writeFile(filePath, JSON.stringify(checkpointData, null, 2), (err) => {
-            if (err) {
-              console.error('Error al guardar los datos:', err);
-            } else {
-              console.log('Datos guardados en', filePath);
-            }
-          });
-
-        // Encuentra el índice del objeto con el subID
-        let subIndex = completedData.findIndex(data => data.checkpointID === subID);
-
-        if (subIndex === -1) {
-          // Si no existe, agrega un nuevo objeto al array
-          completedData.push({ ...checkpointData[index] });
-        } else {
-          // Si existe, actualiza el objeto existente para no tener redundancia de MAC
-          completedData[subIndex] = { ...checkpointData[index] };
-        }
-          checkpointData[index] = {//ver si borrar no reiniciar
-            packageNum: 0,
-            checkpointID: subID,
-            totalPackages: jsonData.totalPackages,
-            contPackages: 0,
-            animals: []
-          };
-
-          return completedData;
-        } else {
-          console.log('Paquetes recibidos:', checkpointData[index].contPackages, ', Esperados:', checkpointData[index].totalPackages, ', Punto:', checkpointData[index].checkpointID);
-          return null;
-        }
-      }
-  } 
+const saveToFile = () => {
+    try {
+        fs.writeFileSync(filePath, JSON.stringify(checkpointData, null, 2));
+        console.log('Datos guardados en', filePath);
+    } catch (error) {
+        console.error('Error al guardar los datos:', error);
+    }
 };
 
+const updateSMS = (jsonData) => {
+    if (!auxFunc.valCheckpoint(jsonData.checkpointID)) {
+        console.error('ID de checkpoint inválido');
+        return null;
+    }
 
+    const checkpointIndex = checkpointData.findIndex(
+        cp => cp.checkpointID === jsonData.checkpointID
+    );
 
-let lotePrueba = [
-  {
-    packageNum: 1,
-    checkpointID: "00:1B:44:11:3A:B7",
-    totalPackages: 3,
-    contPackages: 3,
-    animals: [
-      { id: 'a1', type: 'dog', name: 'Buddy' },
-      { id: 'a2', type: 'cat', name: 'Whiskers' },
-      { id: 'test', type: 'bird', name: 'Tweety' }
-    ]
-  },
-  {
-    packageNum: 2,
-    checkpointID: "08:A6:F7:A1:8E:80",
-    totalPackages: 2,
-    contPackages: 2,
-    animals: [
-      { id: 'a4', type: 'dog', name: 'Max' },
-      { id: 'a5', type: 'cat', name: 'Shadow' }
-    ]
-  },
-  {
-    packageNum: 3,
-    checkpointID: "A8:40:41:1A:2B:C3",
-    totalPackages: 1,
-    contPackages: 1,
-    animals: [
-      { id: 'a6', type: 'fish', name: 'Goldie' }
-    ]
-  }
-];
-const getCheckpointData = () => {//el sms por bloques
-  //return checkpointData;
-  return lotePrueba;
-}
+    if (checkpointIndex === -1) {
+        // Nuevo checkpoint
+        const newCheckpoint = {
+            checkpointID: jsonData.checkpointID,
+            packages: [{
+                packageNum: jsonData.packageNum,
+                animals: jsonData.animals
+            }],
+            totalPackages: jsonData.totalPackages,
+            receivedPackages: 1,
+            lastUpdate: new Date().toISOString()
+        };
+        checkpointData.push(newCheckpoint);
+        saveToFile();
+    } else {
+        // Checkpoint existente
+        const checkpoint = checkpointData[checkpointIndex];
+        
+        // Verificar si este paquete ya fue recibido
+        const packageExists = checkpoint.packages.some(
+            pkg => pkg.packageNum === jsonData.packageNum
+        );
 
-const getCompletedSMS = () => {//el sms completo
-  return lotePrueba; 
-}
+        if (!packageExists) {
+            checkpoint.packages.push({
+                packageNum: jsonData.packageNum,
+                animals: jsonData.animals
+            });
+            checkpoint.receivedPackages += 1;
+            checkpoint.lastUpdate = new Date().toISOString();
+            
+            // Ordenar paquetes por número
+            checkpoint.packages.sort((a, b) => a.packageNum - b.packageNum);
+            
+            saveToFile();
 
-const getCompletedListDevices = () => {//el sms completo
-  //return completedData.flatMap(data => data.animals);
-  return lotePrueba.flatMap(data => data.animals);
+            // Verificar si se han recibido todos los paquetes
+            if (checkpoint.receivedPackages === checkpoint.totalPackages) {
+                console.log('Todos los paquetes recibidos para checkpoint:', checkpoint.checkpointID);
+                return getCompleteCheckpointData(checkpoint);
+            }
+        }
+    }
+    return null;
+};
 
-}
+const getCompleteCheckpointData = (checkpoint) => {
+    // Combinar todos los animales de todos los paquetes
+    const allAnimals = checkpoint.packages.reduce((acc, pkg) => {
+        return acc.concat(pkg.animals);
+    }, []);
 
-module.exports = { updateSMS, getCheckpointData, getCompletedSMS,getCompletedListDevices};
+    // Eliminar duplicados basados en el ID del animal
+    const uniqueAnimals = Array.from(
+        new Map(allAnimals.map(animal => [animal.id, animal])).values()
+    );
+
+    return {
+        checkpointID: checkpoint.checkpointID,
+        totalPackages: checkpoint.totalPackages,
+        animals: uniqueAnimals
+    };
+};
+
+const getCheckpointData = () => {
+    return checkpointData;
+};
+
+const getCompletedListDevices = () => {
+    const allAnimals = checkpointData.flatMap(checkpoint => 
+        checkpoint.packages.flatMap(pkg => pkg.animals)
+    );
+    
+    // Eliminar duplicados basados en el ID del animal
+    return Array.from(
+        new Map(allAnimals.map(animal => [animal.id, animal])).values()
+    );
+};
+
+module.exports = { 
+    updateSMS, 
+    getCheckpointData, 
+    getCompletedListDevices 
+};
