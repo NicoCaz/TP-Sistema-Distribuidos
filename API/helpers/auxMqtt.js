@@ -5,7 +5,7 @@ const CHECKPOINT_FILE = 'checkpoint_data.json';
 
 class CheckpointHandler {
   constructor() {
-    this.filePath = path.join(__dirname,'BBDD', CHECKPOINT_FILE);
+    this.filePath = path.join(__dirname,'../BBDD', CHECKPOINT_FILE);
   }
 
   async loadCheckpointData() {
