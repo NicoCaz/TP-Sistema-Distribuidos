@@ -13,5 +13,15 @@
     "name": "Pedro",
     "id": "28:76:0c:cc:68:25",
     "description": "aaaaa"
+  },
+  {
+    "name": "Nico2",
+    "id": "2a:ba:33:5b:8a:fb",
+    "description": "Samsung"
+  },
+  {
+    "name": "Random device",
+    "id": "68:fc:ca:8a:ff:a7",
+    "description": "asdsad"
   }
 ]

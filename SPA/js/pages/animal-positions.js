@@ -29,10 +29,10 @@ class AnimalPositionsPage {
     }
 
     startAutoRefresh() {
-        // Actualizar cada 30 segundos
+        // Actualizar cada 5 segundos
         this.refreshInterval = setInterval(() => {
             this.loadPositions();
-        }, 30000);
+        }, 5000);
     }
 
     cleanup() {

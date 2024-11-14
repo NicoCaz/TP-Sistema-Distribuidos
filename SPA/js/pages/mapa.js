@@ -111,7 +111,7 @@ class MapPage {
         
         setInterval(() => {
             this.updateAnimalPositions();
-        }, 1000);
+        }, 5000);
     }
 
     cleanup() {
