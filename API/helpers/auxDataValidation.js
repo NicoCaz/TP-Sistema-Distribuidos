@@ -13,7 +13,7 @@ const valCheckpoint = (checkpointID) => {
   const regCheckpoint = getCheckpoint();
   const check = regCheckpoint.find((check) => check.id === checkpointID);
   if (!check) throw new Error("401");
-  return true;
+  return check;
 };
 
 module.exports = {getCheckpoint, valCheckpoint };

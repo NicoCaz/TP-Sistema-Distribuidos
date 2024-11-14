@@ -74,16 +74,53 @@ const updateSMS = (jsonData) => {
   } 
 };
 
+
+
+let lotePrueba = [
+  {
+    packageNum: 1,
+    checkpointID: "00:1B:44:11:3A:B7",
+    totalPackages: 3,
+    contPackages: 3,
+    animals: [
+      { id: 'a1', type: 'dog', name: 'Buddy' },
+      { id: 'a2', type: 'cat', name: 'Whiskers' },
+      { id: 'a3', type: 'bird', name: 'Tweety' }
+    ]
+  },
+  {
+    packageNum: 2,
+    checkpointID: "08:A6:F7:A1:8E:80",
+    totalPackages: 2,
+    contPackages: 2,
+    animals: [
+      { id: 'a4', type: 'dog', name: 'Max' },
+      { id: 'a5', type: 'cat', name: 'Shadow' }
+    ]
+  },
+  {
+    packageNum: 3,
+    checkpointID: "A8:40:41:1A:2B:C3",
+    totalPackages: 1,
+    contPackages: 1,
+    animals: [
+      { id: 'a6', type: 'fish', name: 'Goldie' }
+    ]
+  }
+];
 const getCheckpointData = () => {//el sms por bloques
-  return checkpointData;
+  //return checkpointData;
+  return lotePrueba;
 }
 
 const getCompletedSMS = () => {//el sms completo
-  return completedData; 
+  return lotePrueba; 
 }
 
 const getCompletedListDevices = () => {//el sms completo
-  return completedData.flatMap(data => data.animals);
+  //return completedData.flatMap(data => data.animals);
+  return lotePrueba.flatMap(data => data.animals);
+
 }
 
 module.exports = { updateSMS, getCheckpointData, getCompletedSMS,getCompletedListDevices};

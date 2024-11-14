@@ -72,7 +72,9 @@ const routeAnimals = (req, res) => {
     console.log('📍 Solicitando posiciones de animales');
 
     const dataPosition = dataCheckPoints.map(dataCheckpoint => {
-      const checkpoint = getCheckpointById(dataCheckpoint.checkpointID);
+      console.log('🔍 Buscando checkpoint:', dataCheckpoint.checkpointID);
+      const checkpoint = auxFuncCP.getCheckpointById(dataCheckpoint.checkpointID);
+      console.log (checkpoint)
       const coordinates = {
         lat: checkpoint.lat,
         long: checkpoint.long
