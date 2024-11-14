@@ -1,9 +1,12 @@
+import { config } from '../config.js';	
+
+
 export class MapService {
     constructor() {
         this.map = null;
         this.pointsLayer = null;
         this.animalsLayer = null;
-        this.API_URL = 'http://localhost:3000/api';
+        this.API_URL = config.API_URL;
     }
 
     async getCheckpoints() {

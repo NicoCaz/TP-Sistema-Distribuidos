@@ -1,6 +1,9 @@
+import { config } from '../config.js';	
+
+
 export class PointService {
     constructor() {
-        this.API_URL = 'http://localhost:3000';
+        this.API_URL = config.API_URL;
     }
 
     async getPoints() {

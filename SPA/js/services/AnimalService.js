@@ -1,6 +1,8 @@
+import { config } from '../config.js';	
+
 export class AnimalService {
     constructor() {
-        this.baseUrl = 'http://localhost:3000/api';
+        this.baseUrl = config.API_URL;
         this.mockDevices = [
             'TEST_001',
             'TEST_002',

@@ -1,6 +1,11 @@
+import { config } from '../config.js';	
+
+
 export class AboutService {
     constructor() {
         this.BASE_URL = 'https://api.github.com/repos/NicoCaz/TP-Sistema-Distribuidos';
+        //Por si hace falta
+        this.ApiURL = config.API_URL;
     }
 
     async getCommitsCount() {

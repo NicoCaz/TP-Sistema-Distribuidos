@@ -1,6 +1,8 @@
+import { config } from '../config.js';	
+
 export class AnimalPositionService {
     constructor() {
-        this.baseUrl = 'http://localhost:3000/api';
+        this.baseUrl = config.API_URL;
     }
 
     async getAnimalPositions() {
