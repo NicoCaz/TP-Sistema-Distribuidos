@@ -9,14 +9,15 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 
-const char* ssid = "Fibertel WiFi980 2.4GHz";  
-const char* password = "chesterton123";  // xD
-const char* mqttServer = "192.168.0.4"; 
+const char* ssid = "FIWIFI";  
+const char* password = "";  // xD
+//10.2.210.70
+const char* mqttServer = "10.2.210.70"; 
 const int mqttPort = 1883; 
 String macWemos;
 int packageNum = 1;
 int totalPackages = 1;
-int paquetesMaximos = 5;
+int paquetesMaximos = 4;
 
 std::vector<std::string> deviceList;
 const char* topic = "checkpoint"; 
@@ -32,7 +33,7 @@ void setup() {
   connectToWiFi();
   connectToMQTT();
   client.setKeepAlive(60); // Mantiene la conexión cada 60 segundos
-  client.setServer(IPAddress(192, 168, 0, 4), mqttPort);
+  client.setServer(IPAddress(10, 2, 210, 70), mqttPort);
   BLEDevice::init("ESP32_BLE"); 
   pBLEScan = BLEDevice::getScan(); 
   pBLEScan->setActiveScan(true); 
