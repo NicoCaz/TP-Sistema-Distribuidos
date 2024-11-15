@@ -1,9 +1,9 @@
 const mqtt = require('mqtt');
 const MQTTController = require('./controllers/MQTTController');
-
+//172.23.112.1
 class MQTTClient {
     constructor() {
-        this.client = mqtt.connect(process.env.MQTT_BROKER_URL || 'mqtt://192.168.0.4:1883');
+        this.client = mqtt.connect(process.env.MQTT_BROKER_URL || 'mqtt://10.2.210.70:1883');
         this.controller = new MQTTController();
         this.activeCheckpoints = new Map();
         this.setupEventHandlers();

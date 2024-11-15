@@ -16,10 +16,10 @@ const int mqttPort = 1883;
 String macWemos;
 int packageNum = 1;
 int totalPackages = 1;
-int paquetesMaximos = 7;
+int paquetesMaximos = 5;
 
 std::vector<std::string> deviceList;
-const char* topic = "test/topic"; 
+const char* topic = "checkpoint"; 
 
 unsigned long previousMillis = 0; 
 const long interval = 5000; 
