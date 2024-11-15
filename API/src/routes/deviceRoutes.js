@@ -1,4 +1,4 @@
-const AvailableDevicesController = require('../controllers/AvailableDevicesController');
+const AvailableDevicesController = require('../controllers/availableDevicesController');
 const responseHandler = require('../utils/responseHandler');
 
 const controller = new AvailableDevicesController();
