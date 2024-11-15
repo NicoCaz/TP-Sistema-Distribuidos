@@ -48,10 +48,10 @@ class AnimalsPage {
         }
     }
     startAutoRefresh() {
-        // Actualizar cada 5 segundos
+        // Actualizar cada 10 segundos
         this.refreshInterval = setInterval(() => {
             this.loadDevices();
-        }, 5000);
+        }, 10000);
     }
 
 

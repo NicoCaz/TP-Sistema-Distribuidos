@@ -20,8 +20,18 @@
     "description": "Samsung"
   },
   {
-    "name": "Random device",
-    "id": "68:fc:ca:8a:ff:a7",
-    "description": "asdsad"
+    "name": "Nico cazorla",
+    "id": "b4:0b:1d:11:90:f4",
+    "description": "celu"
+  },
+  {
+    "name": "Vaca facultad",
+    "id": "6d:ee:a1:55:c9:12",
+    "description": "Vaca de la facultad"
+  },
+  {
+    "name": "Nico Cazorla",
+    "id": "ea:8a:87:5e:e7:0b",
+    "description": "smartwatch"
   }
 ]
